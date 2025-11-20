@@ -1,0 +1,54 @@
+﻿@using DoAnWebApp.Models
+@using System.Globalization
+@{
+    Layout = null; // Nếu không dùng layout
+    var sp = ViewBag.sp as DongHo;
+
+    // Tạo định dạng số giống Java DecimalFormat("#,###")
+    var culture = new CultureInfo("vi-VN");
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Chi tiết sản phẩm</title>
+    <link href="~/css/chitiet.css" rel="stylesheet" />
+</head>
+<body>
+    @if (sp != null)
+    {
+        <div class="container">
+            <div class="image">
+                <img src="~/IMG/@sp.Anh" alt="@sp.TenSP" />
+            </div>
+            <div class="info">
+                <h2>@sp.TenSP</h2>
+                <p class="price">@sp.DonGia.ToString("#,###", culture) VND</p>
+                <p class="desc">@sp.MoTa</p>
+                <p class="detail"><br />@Html.Raw(sp.MoTaChiTiet)</p>
+                <p><b>Số lượng còn:</b> @sp.SoLuongTon</p>
+
+                <form method="post" style="display:inline-block;">
+                    <input type="hidden" name="maSP" value="@sp.MaSP" />
+                    <input type="number" name="soLuong" value="1" min="1" style="width:60px" />
+
+                    <button formaction="@Url.Action("ThemVaoGio", "GioHang")" class="btn" type="submit">
+                        Thêm vào giỏ
+                    </button>
+
+                    <button formaction="@Url.Action("MuaNgay", "MuaNgay")" class="btn btn-buy" type="submit"> 
+                        Mua ngay
+                    </button>
+                </form>
+
+                <br /><br />
+                <a href="@Url.Action("Index", "DongHoes")" class="back">⬅ Quay lại trang chủ</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p style="text-align:center; margin-top:50px;">Không tìm thấy thông tin sản phẩm.</p>
+    }
+</body>
+</html>

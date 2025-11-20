@@ -1,0 +1,285 @@
+﻿@using DoAnWebApp.Models
+@{
+    Layout = null;
+
+    // Lấy thông tin người dùng từ Session
+    string user = Context.Session.GetString("Username");
+    string tennd = Context.Session.GetString("TenND");
+
+    // Các thông tin khác vẫn lấy từ ViewBag nếu cần
+    int? loai = ViewBag.Loai as int?;
+    List<DongHo> ds = ViewBag.ListSP as List<DongHo>;
+
+    string err = ViewBag.Error as string;
+    string msg = ViewBag.Message as string;
+    string authTask = ViewBag.AuthTask as string;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Trang chủ - Shop Đồng Hồ Luxury</title>
+	<link href="~/css/trangchucss.css" rel="stylesheet" />
+	<link href="~/css/popupauth.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <div class="header-left">
+            @if (!string.IsNullOrEmpty(user))
+            {
+                <div class="account-buttons left-group">
+                    <span class="user-name">👤 @tennd</span>
+                    <a href="/Auth/Info">🔖 Thông tin tài khoản</a>
+                </div>
+            }
+        </div>
+
+        <div class="header-center">
+            <h1>SHOP ĐỒNG HỒ LUXURY</h1>
+            <p class="subtitle">Thời trang & Phong cách cho mọi người</p>
+
+            <div class="search-box">
+                <form asp-controller="DongHoes" asp-action="Search" method="get">
+                    <input type="text" name="keyword" placeholder="Tìm đồng hồ theo tên..." />
+                    <button type="submit">🔍 Tìm kiếm</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="header-right">
+            @if (string.IsNullOrEmpty(user))
+            {
+                <div class="account-buttons">
+                    <button class="auth-btn" onclick="openFormDangNhap()">Đăng nhập</button>
+                    <button class="auth-btn" onclick="openFormDangKy()">Đăng ký</button>
+                </div>
+            }
+            else
+            {
+                <div class="account-buttons">
+                    <a href="/GioHang">🛒 Giỏ hàng</a>
+                    <a href="/Auth/Logout">🚪 Đăng xuất</a>
+                </div>
+            }
+        </div>
+
+    </div>
+
+
+    <!-- MENU -->
+    <div class="menu">
+        <a href="/DongHoes/Index">Trang chủ</a>
+        <a href="/DongHoes/Filter?loai=1">Đồng hồ nam</a>
+        <a href="/DongHoes/Filter?loai=2">Đồng hồ nữ</a>
+        <a href="/DongHoes/Filter?loai=3">Đồng hồ đôi</a>
+        <a href="/DongHoes/Filter?loai=4">Đồng hồ thể thao</a>
+        <a href="/DongHoes/Filter?loai=5">Đồng hồ thông minh</a>
+        <a href="/DonHang/LichSu">Lịch sử</a>
+    </div>
+
+
+
+    <!-- PRODUCT CATEGORY TITLE -->
+    <div class="section-title">
+        @{
+            string title = loai switch
+            {
+                1 => "ĐỒNG HỒ NAM",
+                2 => "ĐỒNG HỒ NỮ",
+                3 => "ĐỒNG HỒ ĐÔI",
+                4 => "ĐỒNG HỒ THỂ THAO",
+                5 => "ĐỒNG HỒ THÔNG MINH",
+                _ => "BỘ SƯU TẬP HOT NHẤT"
+            };
+        }
+        @title
+    </div>
+
+
+    <!-- PRODUCT LIST -->
+    <div class="container">
+        @if (ds != null && ds.Count > 0)
+        {
+            foreach (var sp in ds)
+            {
+                <div class="product">
+                    <img src="~/img/@sp.Anh" alt="@sp.TenSP" />
+                    <h3>@sp.TenSP</h3>
+
+                    <p class="price">@String.Format("{0:N0}", sp.DonGia) VNĐ</p>
+                    <p class="desc">@sp.MoTa</p>
+
+                    <a class="detail-btn" href="/DongHoes/Details?MaSP=@sp.MaSP">Xem chi tiết</a>
+                </div>
+            }
+        }
+        else
+        {
+            <p style="text-align:center; width:100%;">Không tìm thấy sản phẩm.</p>
+        }
+    </div>
+
+
+    <!-- Popup Đăng ký -->
+    <div class="modal" id="FormDangKy">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePopup('FormDangKy')">&times;</span>
+            <h2>ĐĂNG KÝ TÀI KHOẢN</h2>
+
+            @if (TempData["Error"] != null && TempData["AuthTask"]?.ToString() == "dangky")
+            {
+                <p class="error-msg">@TempData["Error"]</p>
+            }
+
+            <form asp-controller="Auth" asp-action="Register" method="post">
+                <input type="text" name="madangnhap" placeholder="Tên đăng nhập" required />
+                <input type="text" name="tennd" placeholder="Họ và tên" required />
+                <input type="password" name="matkhau" placeholder="Mật khẩu" required />
+                <button type="submit" class="sbm_button">Đăng ký</button>
+            </form>
+
+            <p>
+                Đã có tài khoản?
+                <button class="popup-link-btn" onclick="switchPopup('FormDangKy','FormDangNhap')">
+                    Đăng nhập
+                </button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Popup Đăng nhập -->
+    <div class="modal" id="FormDangNhap">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePopup('FormDangNhap')">&times;</span>
+            <h2>ĐĂNG NHẬP</h2>
+
+            @if (TempData["Error"] != null && TempData["AuthTask"]?.ToString() == "dangnhap")
+            {
+                <p class="error-msg">@TempData["Error"]</p>
+            }
+
+            @if (TempData["Message"] != null && TempData["AuthTask"]?.ToString() == "dangnhap")
+            {
+                <p class="success-msg">@TempData["Message"]</p>
+            }
+
+            <form asp-controller="Auth" asp-action="Login" method="post">
+                <input type="text" name="username" placeholder="Tên đăng nhập" required />
+                <input type="password" name="password" placeholder="Mật khẩu" required />
+                <button type="submit" class="sbm_button">Đăng nhập</button>
+            </form>
+
+            <p>
+                Chưa có tài khoản?
+                <button class="popup-link-btn" onclick="switchPopup('FormDangNhap','FormDangKy')">
+                    Đăng ký
+                </button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            var authTask = '@TempData["AuthTask"]';
+            if (authTask === 'dangky') {
+                openPopup('FormDangKy');
+            } else if (authTask === 'dangnhap') {
+                openPopup('FormDangNhap');
+            }
+        }
+
+        function openPopup(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closePopup(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function switchPopup(closeId, openId) {
+            closePopup(closeId);
+            openPopup(openId);
+        }
+    </script>
+
+    <style>
+        .error-msg {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .success-msg {
+            color: green;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+
+
+
+    <!-- FOOTER -->
+    <div class="footer">
+        © 2025 Shop Đồng Hồ Luxury | Liên hệ: 0123 456 789
+    </div>
+
+
+    <!-- SCRIPT -->
+    <script>
+        function openFormDangKy() {
+            document.getElementById("FormDangKy").style.display = "flex";
+        }
+
+        function openFormDangNhap() {
+            document.getElementById("FormDangNhap").style.display = "flex";
+        }
+
+        function closePopup(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function switchPopup(cur, next) {
+            document.getElementById(cur).style.display = "none";
+            document.getElementById(next).style.display = "flex";
+        }
+
+        // Mở popup khi có lỗi / thông báo
+        document.addEventListener('DOMContentLoaded', function () {
+            var task = "@authTask";
+            var err = "@(err?.Replace("\"", "\\\""))";
+            var msg = "@(msg?.Replace("\"", "\\\""))";
+
+            if (!task) return;
+
+            if (task === "dangnhap") {
+                openFormDangNhap();
+
+                if (err) {
+                    document.querySelector('#FormDangNhap .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:red;'>${err}</p>`);
+                } else if (msg) {
+                    document.querySelector('#FormDangNhap .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:green;'>${msg}</p>`);
+                }
+            }
+            else if (task === "dangky") {
+                openFormDangKy();
+
+                if (err) {
+                    document.querySelector('#FormDangKy .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:red;'>${err}</p>`);
+                } else if (msg) {
+                    document.querySelector('#FormDangKy .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:green;'>${msg}</p>`);
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
