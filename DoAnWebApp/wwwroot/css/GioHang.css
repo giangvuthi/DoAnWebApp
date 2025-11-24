@@ -1,0 +1,134 @@
+﻿body {
+    background-color: #ffe6e6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #d6336c;
+    margin-top: 30px;
+}
+
+.cart-container {
+    width: 90%;
+    margin: 30px auto 60px auto;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    padding: 20px 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #ff5c8a;
+    color: white;
+    padding: 15px;
+    font-size: 17px;
+}
+
+td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #f2f2f2;
+    font-size: 16px;
+}
+
+tr:hover {
+    background-color: #fff0f5;
+}
+
+.img-thumb {
+    width: 100px;
+    border-radius: 8px;
+}
+
+.qty-input {
+    width: 60px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #ff5c8a;
+    color: white;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    .btn:hover {
+        background-color: #ff3b72;
+    }
+
+.total-row td {
+    text-align: right;
+    font-weight: bold;
+    color: #333;
+    font-size: 18px;
+}
+
+.actions {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.continue-btn {
+    background-color: #ff7fa1;
+    padding: 10px 18px;
+}
+
+.empty-cart {
+    text-align: center;
+    color: #555;
+    font-size: 18px;
+    margin-top: 50px;
+}
+
+    .empty-cart a {
+        color: #d6336c;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+        .empty-cart a:hover {
+            text-decoration: underline;
+        }
+
+/* Button màu hồng */
+.btn-pink {
+    background-color: #ff7fa1; /* hồng đậm */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+    /* Hover */
+    .btn-pink:hover {
+        background-color: #ff5c8a; /* hồng nhạt hơn */
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Focus */
+    .btn-pink:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255,105,180,0.5);
+    }

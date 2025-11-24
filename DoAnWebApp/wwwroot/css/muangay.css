@@ -1,0 +1,268 @@
+﻿/* ==================================== */
+/* muangay.css (Tone Hồng Pastel)      */
+/* ==================================== */
+
+/* Màu hồng pastel:
+   - Nền: #FFF0F5 (Lavender Blush)
+   - Accent/Tiêu đề: #FFC0CB (Pink)
+   - Nút chính: #F08080 (Light Coral)
+*/
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f3f6; /* Nền trắng ngà/hồng nhạt */
+    padding: 20px;
+    margin: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(255, 192, 203, 0.5); /* Shadow hồng pastel */
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+}
+
+    .header h1 {
+        color: #F08080; /* Light Coral */
+        font-size: 30px;
+        margin-bottom: 5px;
+    }
+
+    .header p {
+        color: #A9A9A9; /* Xám dịu */
+        font-size: 16px;
+    }
+
+/* --- Section Styling --- */
+.section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #FFC0CB; /* Border hồng nhạt */
+    border-radius: 10px;
+    background: #FFF0F5; /* Lavender Blush */
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FF69B4; /* Hot Pink */
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #FFC0CB;
+}
+
+/* --- Product List --- */
+.product-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #FFDBE5; /* Đường phân cách siêu nhạt */
+}
+
+    .product-item:last-child {
+        border-bottom: none;
+    }
+
+.product-image {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+    border: 2px solid #FFC0CB;
+}
+
+.product-info {
+    flex-grow: 1;
+}
+
+.product-name {
+    font-weight: bold;
+    color: #555;
+}
+
+.product-price {
+    font-size: 14px;
+    color: #888;
+}
+
+.product-quantity {
+    font-weight: 500;
+    color: #777;
+    margin-right: 20px;
+    font-size: 14px;
+}
+
+.product-total {
+    font-weight: bold;
+    color: #F08080; /* Light Coral cho tổng tiền */
+    font-size: 18px;
+    width: 120px;
+    text-align: right;
+}
+
+/* --- Total Section --- */
+.total-section {
+    padding-top: 15px;
+    margin-top: 15px;
+    border-top: 2px dashed #FFC0CB;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: bold;
+    color: #FF69B4;
+}
+
+.total-amount {
+    font-size: 22px;
+    color: #F08080;
+}
+
+/* --- Form Styles --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #555;
+    }
+
+.required {
+    color: #FF69B4;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #FFC0CB;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 15px;
+    transition: border-color 0.3s;
+}
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        border-color: #F08080;
+        outline: none;
+        box-shadow: 0 0 5px rgba(240, 128, 128, 0.5);
+    }
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* --- Button Group --- */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #FFC0CB;
+}
+
+.btn {
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    border: none;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background-color: #F08080; /* Light Coral */
+    color: white;
+}
+
+    .btn-primary:hover {
+        background-color: #E9967A; /* Darker version */
+        transform: translateY(-1px);
+    }
+
+.btn-secondary {
+    background-color: #FFC0CB; /* Pink nhạt */
+    color: #333;
+    border: 1px solid #F08080;
+}
+
+    .btn-secondary:hover {
+        background-color: #FFB6C1; /* Light Pink */
+        transform: translateY(-1px);
+    }
+
+/* --- Alerts --- */
+.alert {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+/* Dropdown phương thức thanh toán màu hồng */
+select[name="phuongThuc"] {
+    background-color: #ffc0cb; /* nền hồng nhạt */
+    color: #721c24; /* chữ màu hồng đậm / đỏ sẫm */
+    border: 2px solid #ff69b4; /* viền hồng đậm */
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    outline: none;
+    appearance: none; /* ẩn mũi tên mặc định */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    /* Khi hover */
+    select[name="phuongThuc"]:hover {
+        background-color: #ffb6c1; /* hồng nhạt hơn */
+    }
+
+    /* Khi focus */
+    select[name="phuongThuc"]:focus {
+        border-color: #ff1493; /* hồng đậm hơn */
+        box-shadow: 0 0 5px rgba(255, 20, 147, 0.5);
+    }
+
+/* Mũi tên dropdown màu hồng */
+select[name="phuongThuc"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23ff69b4' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px 14px;
+}
+
+

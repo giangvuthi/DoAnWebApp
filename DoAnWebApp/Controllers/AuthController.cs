@@ -12,78 +12,63 @@ namespace DoAnWebApp.Controllers
         {
             _service = service;
         }
-
-        // === Đăng ký ===
+        //dang ky
         [HttpPost]
-        public async Task<IActionResult> Register(string madangnhap, string tennd, string matkhau)
+        public async Task<IActionResult> Register(string madangnhap, string tennd, string matkhau, string returnUrl)
         {
             if (string.IsNullOrEmpty(madangnhap) || string.IsNullOrEmpty(tennd) || string.IsNullOrEmpty(matkhau))
             {
                 TempData["AuthTask"] = "dangky";
                 TempData["Error"] = "Vui lòng điền đầy đủ thông tin!";
-                return RedirectToAction("Index", "DongHoes"); // Trang chủ
+                return Redirect(returnUrl ?? "/DongHoes");
             }
 
             var existingUser = await _service.GetByIDAsync(madangnhap);
             if (existingUser != null)
             {
                 TempData["AuthTask"] = "dangky";
-                TempData["Error"] = "Tên đăng nhập của bạn bị trùng! Vui lòng nhập tên khác.";
+                TempData["Error"] = "Tên đăng nhập bị trùng! Vui lòng nhập tên khác.";
+                return Redirect(returnUrl ?? "/DongHoes");
             }
-            else
+
+            var newUser = new NguoiDung
             {
-                var newUser = new NguoiDung
-                {
-                    MaDangNhap = madangnhap,
-                    TenND = tennd,
-                    MatKhau = matkhau,
-                    Quyen = 1 // quyền mặc định
-                };
-                await _service.InsertAsync(newUser);
+                MaDangNhap = madangnhap,
+                TenND = tennd,
+                MatKhau = matkhau,
+                Quyen = 1
+            };
+            await _service.InsertAsync(newUser);
 
-                TempData["AuthTask"] = "dangnhap";
-                TempData["Message"] = "Đăng ký thành công! Mời bạn đăng nhập.";
-            }
+            TempData["AuthTask"] = "dangnhap";
+            TempData["Message"] = "Đăng ký thành công! Mời bạn đăng nhập.";
 
-            return RedirectToAction("Index", "DongHoes");
+            return Redirect(returnUrl ?? "/DongHoes");
         }
+
 
         // === Đăng nhập ===
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password, string returnUrl)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-            {
-                TempData["AuthTask"] = "dangnhap";
-                TempData["Error"] = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!";
-                return RedirectToAction("Index", "DongHoes");
-            }
-
             var user = await _service.GetByIDAsync(username);
 
             if (user != null && user.MatKhau == password)
             {
-                // Lưu thông tin vào session
                 HttpContext.Session.SetString("Username", user.MaDangNhap);
                 HttpContext.Session.SetString("TenND", user.TenND);
                 HttpContext.Session.SetInt32("Quyen", user.Quyen);
 
-                if (user.Quyen == 0)
-                {
-                    return RedirectToAction("Index", "DHAdmin"); // Trang admin
-                }
-                else
-                {
-                    return RedirectToAction("Index", "DongHoes"); // Trang người dùng
-                }
+                return Redirect(returnUrl ?? "/DongHoes");
             }
             else
             {
                 TempData["AuthTask"] = "dangnhap";
                 TempData["Error"] = "Sai tên đăng nhập hoặc mật khẩu!";
-                return RedirectToAction("Index", "DongHoes");
+                return Redirect(returnUrl ?? "/DongHoes");
             }
         }
+
 
         // === Đăng xuất ===
         [HttpGet]

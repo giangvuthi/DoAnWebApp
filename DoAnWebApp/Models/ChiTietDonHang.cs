@@ -18,5 +18,6 @@ namespace DoAnWebApp.Models
 
         public DonHang DonHang { get; set; }
         public DongHo DongHo { get; set; }
+        
     }
 }

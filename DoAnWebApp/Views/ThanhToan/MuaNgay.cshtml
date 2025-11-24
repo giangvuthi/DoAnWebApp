@@ -1,0 +1,180 @@
+﻿@using System.Globalization
+@{
+    Layout = null;
+    var chiTietDonHang = ViewBag.ChiTietDonHang as List<dynamic>;
+    decimal tongTien = ViewBag.TongTien ?? 0;
+    var culture = new CultureInfo("vi-VN");
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Thanh toán - Mua ngay</title>
+    <link href="~/css/muangay.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ THANH TOÁN MUA NGAY</h1>
+            <p>Hoàn tất thông tin để đặt hàng</p>
+        </div>
+
+        <div class="content">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-error">
+                    ⚠️ @TempData["Error"]
+                </div>
+            }
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success">
+                    ✓ @TempData["Message"]
+                </div>
+            }
+
+            <div class="section">
+                <div class="section-title">📦 SẢN PHẨM ĐÃ CHỌN</div>
+                <div class="product-list">
+                    @if (chiTietDonHang != null)
+                    {
+                        foreach (var item in chiTietDonHang)
+                        {
+                            <div class="product-item">
+                                <img src="~/img/@item.Anh" alt="@item.TenSP" class="product-image" />
+                                <div class="product-info">
+                                    <div class="product-name">@item.TenSP</div>
+                                    <div class="product-price">
+                                        Đơn giá: @(((decimal)item.DonGia).ToString("#,###", culture)) VNĐ
+                                    </div>
+                                </div>
+                               <div class="product-quantity">
+                                     Số lượng: x@(item.SoLuong)
+                                </div>
+
+
+                                <div class="product-total">
+                                    @(((decimal)item.ThanhTien).ToString("#,###", culture)) VNĐ
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>TỔNG TIỀN:</span>
+                        <span class="total-amount">@tongTien.ToString("#,###", culture) VNĐ</span>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-controller="ThanhToan" asp-action="XacNhanMuaNgay" method="post">
+                <div class="section">
+                    <div class="section-title">📝 THÔNG TIN NHẬN HÀNG</div>
+
+                    <div class="form-group">
+                        <label>Họ và tên <span class="required">*</span></label>
+                        <input type="text" name="hoTen" placeholder="Nhập họ và tên" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Số điện thoại <span class="required">*</span></label>
+                        <input type="tel" name="sdt" placeholder="Nhập số điện thoại" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Địa chỉ nhận hàng <span class="required">*</span></label>
+                        <input type="text" name="diaChi" placeholder="Nhập địa chỉ chi tiết" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phương thức thanh toán <span class="required">*</span></label>
+                        <select name="phuongThuc" required>
+                            <option value="">-- Chọn phương thức --</option>
+                            <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                            <option value="Bank">Chuyển khoản ngân hàng</option>
+                            <option value="Momo">Ví điện tử Momo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ghi chú (không bắt buộc)</label>
+                        <textarea name="ghiChu" placeholder="Ghi chú cho đơn hàng (nếu có)"></textarea>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                        ⬅ Quay lại
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        ✓ Xác nhận đặt hàng
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    @if (ViewBag.Message != null)
+{
+    <div id="success-popup" class="alert alert-success">
+        ✓ @ViewBag.Message Mã đơn: @ViewBag.MaDH
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hiển thị 3 giây
+            setTimeout(function() {
+                // Chuyển sang trang Lịch sử
+                window.location.href = '@ViewBag.ChuyenTrang';
+            }, 3000);
+        });
+    </script>
+}
+
+
+    <script>
+        // Tự động ẩn thông báo sau 5 giây (GIỮ NGUYÊN)
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => alert.remove(), 500);
+                }, 5000);
+            });
+        });
+
+        // Xác nhận trước khi submit (GIỮ NGUYÊN)
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!confirm('Bạn có chắc chắn muốn đặt hàng?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    @if (TempData["Message"] != null)
+{
+    <div id="success-popup" class="popup-success">
+        <div class="popup-content">
+            <span>✓ @TempData["Message"]</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var popup = document.getElementById('success-popup');
+            popup.style.display = 'flex';
+
+            setTimeout(function() {
+                window.location.href = '@Url.Action("LichSuDonHang", "ThanhToan")';
+            }, 3000);
+        });
+    </script>
+}
+
+</body>
+</html>

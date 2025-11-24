@@ -11,7 +11,8 @@ builder.Services.AddScoped<DongHoService>();
 builder.Services.AddScoped<NguoiDungService>();
 builder.Services.AddScoped<MuaNgayService>();
 builder.Services.AddScoped<ThanhToanServise>();
-
+builder.Services.AddScoped<DonHangService>();
+builder.Services.AddScoped<GioHangService>();
 builder.Services.AddControllersWithViews();
 
 // Bật Session
@@ -41,7 +42,10 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.UseSession();
-
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=DongHoes}/{action=Index}/{id?}");

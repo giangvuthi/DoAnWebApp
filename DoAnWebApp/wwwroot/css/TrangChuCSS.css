@@ -3,8 +3,13 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     background: #ffe4e6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* đảm bảo chiều cao 100% màn hình */
 }
-
+.main-content {
+    flex: 1; /* kéo dài phần nội dung chiếm không gian còn lại */
+}
 /* ==== HEADER ==== */
 .header {
     background: #d6336c;
@@ -263,8 +268,144 @@ body {
     color: white;
     text-align: center;
     padding: 20px 0;
-    margin-top: 30px;
     font-weight: bold;
     box-shadow: 0 -4px 6px rgba(0,0,0,0.2);
     border-radius: 10px 10px 0 0;
 }
+
+
+/* ==== BẢNG LỊCH SỬ ĐƠN HÀNG ==== */
+/* --- Bảng Lịch sử Đơn Hàng --- */
+#lich-su-container table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Thead */
+#lich-su-container thead tr {
+    background-color: #ffd6e0; /* hồng pastel nhạt */
+}
+
+#lich-su-container thead th {
+    color: #d6336c; /* hồng đậm hơn */
+    font-weight: 600;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 2px solid #ffc0cb; /* hồng nhạt */
+}
+
+/* Tbody */
+#lich-su-container tbody tr {
+    background-color: #fff0f5; /* hồng pastel rất nhạt */
+    transition: background 0.3s;
+}
+
+    #lich-su-container tbody tr:hover {
+        background-color: #ffe4ec; /* hồng nhạt nổi bật khi hover */
+    }
+
+#lich-su-container tbody td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ffc0cb; /* hồng nhạt */
+}
+
+    /* Link xem chi tiết */
+    #lich-su-container tbody td a {
+        color: #d6336c;
+        font-weight: bold;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        #lich-su-container tbody td a:hover {
+            color: #a3003a; /* hồng đậm khi hover */
+        }
+
+/* Container chi tiết đơn hàng */
+.chitiet-container {
+    padding: 10px;
+    background-color: #fff0f5;
+    border-radius: 8px;
+    border: 1px solid #ffc0cb;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Mỗi sản phẩm trong đơn hàng */
+.chitiet-product-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    background-color: #ffe4ec;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .chitiet-product-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Ảnh sản phẩm nhỏ gọn */
+    .chitiet-product-item img {
+        width: 50px;
+        height: 50px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+/* Thông tin tên + đơn giá */
+.chitiet-product-info {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.chitiet-product-name {
+    font-weight: bold;
+    color: #d6336c;
+    font-size: 14px;
+}
+
+.chitiet-product-price {
+    font-size: 13px;
+    color: #555;
+}
+
+/* Số lượng */
+.chitiet-product-quantity {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    color: #d6336c;
+}
+
+/* Thành tiền */
+.chitiet-product-total {
+    flex: 1;
+    text-align: right;
+    font-weight: bold;
+    color: #a3003a;
+    font-size: 14px;
+}
+
+/* Tổng tiền */
+.chitiet-total-section {
+    margin-top: 10px;
+    text-align: right;
+    font-weight: bold;
+    font-size: 16px;
+    color: #d6336c;
+}
+
+
+

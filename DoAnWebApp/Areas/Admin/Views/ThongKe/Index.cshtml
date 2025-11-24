@@ -1,0 +1,150 @@
+﻿@using System.Globalization
+@using DoAnWebApp.Areas.Admin.Models
+@model dynamic
+@{
+    // Lấy dữ liệu từ ViewBag (Controller đã cung cấp)
+    decimal tongDoanhThu = ViewBag.TongDoanhThu ?? 0;
+    int tongSoDonHang = ViewBag.TongSoDonHang ?? 0;
+    int tongSoDonHangThanhCong = ViewBag.TongSoDonHangThanhCong ?? 0;
+    List<ThongKeModel> thongKeTheoThang = ViewBag.ThongKeTheoThang;
+    decimal tongSoLuongTonKho = ViewBag.TongSoLuongTonKho ?? 0; // Giả sử đã có từ Controller
+    decimal tongSoLuongDaBan = ViewBag.TongSoLuongDaBan ?? 0; // Giả sử đã có từ Controller
+
+    ViewData["Title"] = "Thống Kê Hoạt Động Bán Hàng";
+    var culture = new CultureInfo("vi-VN");
+
+    // Chuẩn bị dữ liệu cho Chart.js
+    var months = thongKeTheoThang?.Select(t => $"Tháng {t.Thang}").ToList() ?? new List<string>();
+    var revenueData = thongKeTheoThang?.Select(t => t.DoanhThu).ToList() ?? new List<decimal>();
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>@ViewData["Title"]</title>
+    <link href="~/css/thongke.css" rel="stylesheet" />
+
+    @* Thêm thư viện Chart.js *@
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="thongke-container">
+        <h1 class="main-title">📈 BÁO CÁO THỐNG KÊ TỔNG QUAN</h1>
+
+        <div class="metrics-grid">
+            <div class="metric-card revenue">
+                <h3>💰 Tổng Doanh Thu</h3>
+                <p>@tongDoanhThu.ToString("#,###", culture) VNĐ</p>
+                <span class="hint">Doanh thu từ đơn hàng thành công.</span>
+            </div>
+
+            <div class="metric-card inventory">
+                <h3>📦 Tồn Kho</h3>
+                <p>@tongSoLuongTonKho.ToString("N0", culture) chiếc</p>
+                <span class="hint">Tổng số lượng sản phẩm đang có sẵn.</span>
+            </div>
+
+            <div class="metric-card sold">
+                <h3>🚀 Số Lượng Đã Bán</h3>
+                <p>@tongSoLuongDaBan.ToString("N0", culture) chiếc</p>
+                <span class="hint">Tổng số lượng sản phẩm đã bán ra.</span>
+            </div>
+
+            <div class="metric-card orders">
+                <h3>✅ Đơn Hàng Thành Công</h3>
+                <p>@tongSoDonHangThanhCong đơn</p>
+                <span class="hint">Tổng số đơn hàng hoàn tất.</span>
+            </div>
+        </div>
+
+        <hr class="divider" />
+
+        <h2 class="section-heading">📈 Biểu Đồ Doanh Thu Theo Tháng (@DateTime.Now.Year)</h2>
+        <div class="chart-container">
+            <canvas id="doanhThuChart"></canvas>
+        </div>
+
+        <hr class="divider" />
+
+        <h2 class="section-heading">📆 Chi Tiết Doanh Thu Theo Tháng (@DateTime.Now.Year)</h2>
+
+        @if (thongKeTheoThang != null && thongKeTheoThang.Any())
+        {
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tháng</th>
+                        <th>Doanh Thu (VNĐ)</th>
+                        <th>Số Lượng Đơn Hàng Thành Công</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in thongKeTheoThang)
+                    {
+                        <tr>
+                            <td>Tháng @item.Thang</td>
+                            <td>@item.DoanhThu.ToString("#,###", culture)</td>
+                            <td>@item.SoDonHang</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="no-data">Không có dữ liệu đơn hàng thành công trong năm nay.</p>
+        }
+    </div>
+
+    <script>
+        // Lấy dữ liệu từ Razor/ViewBag
+        const months = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(months));
+        const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(revenueData));
+
+        const ctx = document.getElementById('doanhThuChart');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Doanh Thu (VNĐ)',
+                    data: revenueData,
+                    backgroundColor: 'rgba(214, 51, 108, 0.8)', // Màu hồng đậm
+                    borderColor: 'rgba(214, 51, 108, 1)',
+                    borderWidth: 1,
+                    hoverBackgroundColor: 'rgba(255, 107, 129, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Doanh Thu (VNĐ)'
+                        },
+                        // Định dạng trục Y hiển thị dấu phân cách hàng nghìn
+                        ticks: {
+                            callback: function(value, index, ticks) {
+                                return value.toLocaleString('vi-VN');
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
