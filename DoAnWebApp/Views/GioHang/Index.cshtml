@@ -4,6 +4,7 @@
     ViewData["Title"] = "Giỏ hàng";
     var tongTien = 0.0;
     bool coSP = Model != null && Model.ChiTietDonHangs.Any();
+    Layout = null; 
 }
 
 <link href="~/css/giohang.css" rel="stylesheet" />
@@ -32,6 +33,7 @@
                 var anh = sp?.Anh;
                 var tenSP = sp?.TenSP;
                 var donGia = sp?.DonGia ?? 0;
+                var soLuongTon = sp?.SoLuongTon ?? 1;
                 var soLuong = ct.SoLuong;
                 var thanhTien = ct.ThanhTien;
 
@@ -60,10 +62,14 @@
                         <input type="number"
                                class="qty-input"
                                data-masp="@maSP"
+                               data-max-qty="@soLuongTon"
                                name="soLuong_@maSP"
                                value="@soLuong"
                                min="1"
+                               max="@soLuongTon"
                                style="width:60px;">
+                        <br>
+                        <small style="color: #666;">Kho: @soLuongTon</small>
                     </td>
 
                     <td class="subtotal">
@@ -113,7 +119,6 @@
 
 </div>
 
-<!-- JavaScript giống 100% JSP -->
 <script>
     function formatVND(number) {
         return new Intl.NumberFormat('vi-VN').format(number);
@@ -144,9 +149,64 @@
         document.getElementById("tongCong").textContent = formatVND(total);
     }
 
+    // Xử lý thay đổi số lượng với kiểm tra tồn kho
     document.querySelectorAll(".qty-input").forEach(input => {
-        input.addEventListener("input", updateTotal);
+        // Chỉ cập nhật tổng tiền khi đang nhập (không hiện thông báo)
+        input.addEventListener("input", function() {
+            updateTotal();
+        });
+
+        // Kiểm tra khi người dùng rời khỏi ô input (nhập xong)
+        input.addEventListener("blur", function() {
+            validateQuantity(this);
+        });
+
+        // Kiểm tra khi người dùng dùng mũi tên tăng/giảm
+        input.addEventListener("change", function() {
+            validateQuantity(this);
+        });
+
+        // Kiểm tra khi người dùng nhấn Enter
+        input.addEventListener("keypress", function(e) {
+            if (e.key === 'Enter') {
+                validateQuantity(this);
+            }
+        });
     });
+
+    function validateQuantity(inputElement) {
+        const maxStock = parseInt(inputElement.getAttribute('data-max-qty'));
+        let currentQty = parseInt(inputElement.value);
+
+        // Kiểm tra nếu không phải số hoặc rỗng
+        if (isNaN(currentQty) || inputElement.value === '') {
+            inputElement.value = 1;
+            alert('⚠️ Số lượng không hợp lệ. Đã đặt lại về 1.');
+            updateTotal();
+            return;
+        }
+
+        // Kiểm tra nếu nhỏ hơn 1 hoặc bằng 0
+        if (currentQty < 1 || currentQty === 0) {
+            inputElement.value = 1;
+            alert('⚠️ Số lượng phải lớn hơn 0. Đã đặt lại về 1.');
+            updateTotal();
+            return;
+        }
+
+        // Kiểm tra nếu vượt quá tồn kho
+        if (currentQty > maxStock) {
+            inputElement.value = maxStock;
+            
+            if (maxStock === 0) {
+                alert('❌ Sản phẩm hiện đã hết hàng!');
+            } else {
+                alert('⚠️ Sản phẩm trong kho chỉ còn ' + maxStock + ' sản phẩm.');
+            }
+        }
+
+        updateTotal();
+    }
 
     document.querySelectorAll(".item-checkbox").forEach(checkbox => {
         checkbox.addEventListener("change", updateTotal);
@@ -155,12 +215,33 @@
     updateTotal();
 </script>
 
-<!-- JS cập nhật số lượng lên server -->
 <script>
     const thanhToanForm = document.getElementById('thanhToanForm');
 
     if (thanhToanForm) {
         thanhToanForm.addEventListener('submit', function (e) {
+            // Kiểm tra tồn kho trước khi thanh toán
+            let hasStockIssue = false;
+            
+            document.querySelectorAll('#cartTable .item-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    const tr = cb.closest('tr');
+                    const qtyInput = tr.querySelector('.qty-input');
+                    const maxStock = parseInt(qtyInput.getAttribute('data-max-qty'));
+                    const currentQty = parseInt(qtyInput.value);
+                    
+                    if (currentQty > maxStock || currentQty < 1) {
+                        hasStockIssue = true;
+                    }
+                }
+            });
+
+            if (hasStockIssue) {
+                e.preventDefault();
+                alert('⚠️ Vui lòng kiểm tra lại số lượng sản phẩm trong giỏ hàng!');
+                return;
+            }
+
             // Xóa các input ẩn cũ nếu có
             document.querySelectorAll('.item-hidden').forEach(h => h.remove());
 
@@ -192,4 +273,3 @@
         });
     }
 </script>
-

@@ -26,7 +26,13 @@ namespace DoAnWebApp.Controllers
             }
 
             string user = HttpContext.Session.GetString("Username");
-            await _gioHangService.ThemVaoGioAsync(user, maSP, soLuong);
+            string result = await _gioHangService.ThemVaoGioAsync(user, maSP, soLuong);
+
+            if (result != "OK")
+            {
+                TempData["Error"] = result;  // báo lỗi hết hàng hoặc vượt số lượng tồn
+                return Redirect(Request.Headers["Referer"].ToString());
+            }
 
             TempData["Message"] = "Đã thêm vào giỏ!";
             return Redirect(Request.Headers["Referer"].ToString());
@@ -34,11 +40,25 @@ namespace DoAnWebApp.Controllers
 
 
         // =============== 2. Cập nhật số lượng ==================
+        //[HttpPost]
+        //public async Task<IActionResult> CapNhat(string maSP, int soLuong)
+        //{
+        //    string user = HttpContext.Session.GetString("Username");
+        //    await _gioHangService.CapNhatSoLuongAsync(user, maSP, soLuong);
+
+        //    return Ok("Cập nhật thành công");
+        //}
+
+
         [HttpPost]
         public async Task<IActionResult> CapNhat(string maSP, int soLuong)
         {
             string user = HttpContext.Session.GetString("Username");
-            await _gioHangService.CapNhatSoLuongAsync(user, maSP, soLuong);
+
+            var result = await _gioHangService.CapNhatSoLuongAsync(user, maSP, soLuong);
+
+            if (result != "OK")
+                return BadRequest(result); 
 
             return Ok("Cập nhật thành công");
         }
