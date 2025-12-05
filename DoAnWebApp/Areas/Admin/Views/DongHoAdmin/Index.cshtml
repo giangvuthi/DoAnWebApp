@@ -1,0 +1,310 @@
+﻿@using DoAnWebApp.Models
+@model List<DongHo>
+@{
+    ViewData["Title"] = "Trang chủ - Shop Đồng Hồ Luxury";
+
+    string user = Context.Session.GetString("username");
+    string tennd = Context.Session.GetString("tennd");
+
+    int loai = ViewBag.Loai != null ? (int)ViewBag.Loai : 0;
+    List<LoaiDH> listLoai = ViewBag.listLoai as List<LoaiDH>;
+
+    string keyword = ViewBag.Keyword as string;
+    string thongbao = TempData["thongbao"] as string;
+    var ThongBao = TempData["ThongBao"] as string;
+    var MaTam = TempData["MaTam"] as string;
+    var TenTam = TempData["TenTam"] as string;
+    var GiaTam = TempData["GiaTam"] as string;
+    var LoaiTam = TempData["LoaiTam"] as string;
+    var AnhTam = TempData["AnhTam"] as string;
+    var SLTTam = TempData["SLTTam"] as string;
+    var MoTaTam = TempData["MoTaTam"] as string;
+    var MoTaCTTam = TempData["MoTaCTTam"] as string;
+    var TaskTam = TempData["TaskTam"] as string;
+
+}
+
+<link href="~/css/trangchucss.css" rel="stylesheet" />
+<link href="~/css/popupadmin.css" rel="stylesheet" />
+
+<div class="header">
+    <div class="header-left">
+        @if (user != null)
+        {
+            <div class="account-buttons left-group">
+                <span class="user-name">👤 @tennd</span>
+            </div>
+        }
+    </div>
+
+    <div class="header-center">
+        <h1>SHOP ĐỒNG HỒ LUXURY</h1>
+        <p class="subtitle">Thời trang & Phong cách cho mọi người</p>
+
+        <div class="search-box">
+            <form asp-controller="DongHoAdmin" asp-action="Index" method="get">
+                <input type="hidden" name="task" id="taskSearch" />
+
+                <select name="loai" id="typeId" onchange="setTask('searchByType'); this.form.submit()" style="width:25%">
+                    <option value="" selected disabled hidden>-- Tìm kiếm theo loại --</option>
+                    @foreach (var item in listLoai)
+                    {
+                        <option value="@item.MaLoai" @(item.MaLoai == loai ? "selected" : "")>@item.TenLoai</option>
+                    }
+                </select>
+
+                <input type="text" name="keyword" placeholder="Tìm đồng hồ theo tên..." value="@keyword" />
+                <button type="submit" onclick="setTask('searchByName')">🔍 Tìm kiếm</button>
+                <button type="button" onclick="openPopup(null,'add')">+ Thêm</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="account-buttons">
+            <a href="@Url.Action("Logout", "Auth", new { area = "" })">🚪 Đăng xuất</a>
+        </div>
+    </div>
+</div>
+
+<div class="menu">
+    <a href="@Url.Action("Index", "DongHoAdmin", new { area = "Admin" })">Sản Phẩm</a>
+    <a href="@Url.Action("Index", "NguoiDungAdmin", new { area = "Admin" })">Người Dùng</a>
+    <a href="@Url.Action("Index", "LoaiDHAdmin", new { area = "Admin" })">Loại Đồng Hồ</a>
+    <a href="@Url.Action("Index", "DonHangAdmin", new { area = "Admin" })">Đơn Hàng</a>
+    <a href="@Url.Action("Index", "ThongKe", new { area = "Admin" })">Thống Kê</a>
+</div>
+
+<center>
+    <h1 class="PTitle">Danh sách sản phẩm</h1>
+    <table width="90%" class="table-container">
+        <thead>
+            <tr>
+                <td>Mã SP</td>
+                <td>Tên SP</td>
+                <td>Loại SP</td>
+                <td>Đơn Giá</td>
+                <td>Ảnh Minh Họa</td>
+                <td>Số Lượng Tồn</td>
+                <td>Mô Tả</td>
+                <td>Mô Tả Chi Tiết</td>
+                <td>Thao Tác</td>
+            </tr>
+        </thead>
+        @foreach (var item in Model)
+        {
+            var dhJson = new
+            {
+                MaSP = item.MaSP,
+                TenSP = item.TenSP,
+                MaLoai = item.MaLoai,
+                DonGia = item.DonGia,
+                Anh = item.Anh,
+                SoLuongTon = item.SoLuongTon,
+                MoTa = item.MoTa,
+                MoTaChiTiet = item.MoTaChiTiet
+            };
+            <tr>
+                <td>@item.MaSP</td>
+                <td>@item.TenSP</td>
+                <td>@item.MaLoai</td>
+                <td>@String.Format("{0:0,0}", item.DonGia) VNĐ</td>
+                <td><img src="~/IMG/@item.Anh" alt="Not found image" /></td>
+                <td>@item.SoLuongTon</td>
+                <td>@item.MoTa</td>
+                <td>@item.MoTaChiTiet</td>
+                <td>
+                    <a href="javascript:void(0);" class="btn-edit"
+                       data-dh='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(dhJson))'
+                       onclick="openPopup(JSON.parse(this.dataset.dh),'update')">✏️ Sửa</a>
+                   
+                    <a href="javascript:void(0);" class="btn-delete"
+                       data-dh='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(dhJson))'
+                       onclick="openPopup(JSON.parse(this.dataset.dh),'delete')">🗑️ Xóa</a>
+                </td>
+            </tr>
+        }
+    </table>
+</center>
+
+<!-- POPUP -->
+<div id="editModal" class="modal">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closePopup()">&times;</span>
+        <h2 id="formText">Chỉnh sửa sản phẩm</h2>
+
+        @if (!string.IsNullOrEmpty(thongbao))
+        {
+            <div class="errmgs">@thongbao</div>
+        }
+
+        <form asp-controller="DongHoAdmin" asp-action="Index" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="task" id="task" />
+
+            <table>
+                <tr>
+                    <td>Mã SP</td>
+                    <td><input type="text" id="ma" name="ma" readonly /></td>
+                </tr>
+                <tr>
+                    <td>Tên SP</td>
+                    <td><input type="text" id="ten" name="ten" /></td>
+                </tr>
+                <tr>
+                    <td>Loại SP</td>
+                    <td>
+                        <select id="loai" name="loai">
+                            <option value="" disabled selected hidden>-- Chọn loại --</option>
+                            @foreach (var l in listLoai)
+                            {
+                                <option value="@l.MaLoai">@l.TenLoai</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Giá</td>
+                    <td><input type="number" id="gia" name="gia" /></td>
+                </tr>
+                <tr>
+                    <td>Ảnh</td>
+                    <td>
+                        <img id="anhHT" class="image-preview" style="display:none; max-width:150px; margin-bottom:5px;" />
+                        <input type="hidden" id="anhHienTai" name="anhHienTai" />
+                        <br />
+                        <label for="anh" class="file-label" style="display:inline-block; margin-top:5px;">Chọn ảnh</label>
+                        <input type="file" id="anh" name="anh" accept="image/*" class="file-input" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Số lượng tồn</td>
+                    <td><input type="number" id="solgt" name="solgt" /></td>
+                </tr>
+                <tr>
+                    <td>Mô tả</td>
+                    <td><textarea id="mota" name="mota"></textarea></td>
+                </tr>
+                <tr>
+                    <td>Mô tả chi tiết</td>
+                    <td><textarea id="motact" name="motact"></textarea></td>
+                </tr>
+            </table>
+
+            <button type="submit" id="submitBtn">Xác nhận</button>
+        </form>
+    </div>
+</div>
+
+<div class="footer">
+    © 2025 Shop Đồng Hồ Luxury | Liên hệ: 0123 456 789
+</div>
+
+<script>
+    function setTask(str) { 
+        document.getElementById("taskSearch").value = str; 
+    }
+
+    function openPopup(dh, mode) {
+        const f = document.getElementById("editModal");
+        f.style.display = "flex";
+
+        document.getElementById("ma").value = dh?.MaSP || "";
+        document.getElementById("ten").value = dh?.TenSP || "";
+        document.getElementById("loai").value = dh?.MaLoai || "";
+        document.getElementById("gia").value = dh?.DonGia || "";
+        const imgHT = document.getElementById("anhHT");
+        imgHT.src = dh?.Anh ? "/IMG/" + dh.Anh : "";
+        imgHT.style.display = dh?.Anh ? "inline-block" : "none";
+        document.getElementById("anhHienTai").value = dh?.Anh || "";
+        document.getElementById("solgt").value = dh?.SoLuongTon || "";
+        document.getElementById("mota").value = dh?.MoTa || "";
+        document.getElementById("motact").value = dh?.MoTaChiTiet || "";
+
+        document.getElementById("task").value = mode;
+
+        const title = document.getElementById("formText");
+        const btn = document.getElementById("submitBtn");
+
+        // Reset readonly
+        document.getElementById("ma").readOnly = false;
+        document.getElementById("ten").readOnly = false;
+        document.getElementById("loai").readOnly = false;
+        document.getElementById("gia").readOnly = false;
+        document.getElementById("solgt").readOnly = false;
+        document.getElementById("mota").readOnly = false;
+        document.getElementById("motact").readOnly = false;
+
+        if(mode==='add'){
+            title.textContent = "Thêm sản phẩm mới";
+            btn.textContent = "Thêm";
+            document.getElementById("loai").selectedIndex = 0;
+        } else if(mode==='update'){
+            title.textContent = "Chỉnh sửa sản phẩm";
+            btn.textContent = "Lưu";
+            document.getElementById("ma").readOnly = true;
+        } else if(mode==='delete'){
+            title.textContent = "Xóa sản phẩm này?";
+            btn.textContent = "Xóa";
+            document.getElementById("ma").readOnly = true;
+            document.getElementById("ten").readOnly = true;
+            document.getElementById("loai").readOnly = true;
+            document.getElementById("gia").readOnly = true;
+            document.getElementById("solgt").readOnly = true;
+            document.getElementById("mota").readOnly = true;
+            document.getElementById("motact").readOnly = true;
+        }
+    }
+
+    function closePopup() {
+        document.getElementById("editModal").style.display="none";
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        // Preview ảnh khi chọn file
+        const inputAnh = document.getElementById("anh");
+        const imgHT = document.getElementById("anhHT");
+        inputAnh.addEventListener("change", function(e){
+            const file = e.target.files[0];
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(ev){
+                    imgHT.src = ev.target.result;
+                    imgHT.style.display = "inline-block";
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ----------------------------
+        // Popup tự động mở khi TempData có lỗi
+        // ----------------------------
+        const hasThongBao = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(!string.IsNullOrEmpty(thongbao)));
+
+        if (hasThongBao) {
+            // Tạo object JS an toàn từ TempData
+            const dhTemp = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+                MaSP = MaTam,
+                TenSP = TenTam,
+                MaLoai = LoaiTam,
+                DonGia = GiaTam,
+                Anh = AnhTam,
+                SoLuongTon = SLTTam,
+                MoTa = MoTaTam,
+                MoTaChiTiet = MoTaCTTam
+            }));
+
+            // Chọn mode popup: add / update / delete
+            const mode = "@TaskTam" === "add" ? "add" : "@TaskTam" === "delete" ? "delete" : "update";
+
+            openPopup(dhTemp, mode);
+
+            // Set dropdown loại
+            if (dhTemp.MaLoai) {
+                document.getElementById("loai").value = dhTemp.MaLoai;
+            }
+        }
+    });
+</script>
+

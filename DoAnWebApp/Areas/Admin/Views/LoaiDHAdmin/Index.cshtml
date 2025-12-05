@@ -1,0 +1,239 @@
+﻿@using DoAnWebApp.Models
+@model List<DoAnWebApp.Models.LoaiDH>
+@{
+    ViewData["Title"] = "Trang chủ - Shop Đồng Hồ Luxury";
+    var user = Context.Session.GetString("username");
+    var tennd = Context.Session.GetString("tennd");
+
+    int? count = TempData["Count"] as int?;
+    string TaskTra = TempData["TaskTra"] as string;
+    int? maTam = TempData["MaLoai"] as int?;
+    string tenTam = TempData["TenLoai"] as string;
+    var loaiCheck = TempData["LoaiCheck"] as DoAnWebApp.Models.LoaiDH;
+}
+
+<link href="~/css/popupadmin.css" rel="stylesheet" />
+<link href="~/css/trangchucss.css" rel="stylesheet" />
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        @if (!string.IsNullOrEmpty(user))
+        {
+            <div class="account-buttons left-group">
+                <span class="user-name">👤 @tennd</span>
+            </div>
+        }
+    </div>
+    <div class="header-center">
+        <h1>SHOP ĐỒNG HỒ LUXURY</h1>
+        <p class="subtitle">Thời trang & Phong cách cho mọi người</p>
+        <div class="search-box">
+            <form asp-area="Admin" asp-controller="LoaiDHAdmin" asp-action="Index" method="get">
+                <input type="text" name="keyword" value="@ViewBag.Keyword" placeholder="Tìm loại đồng hồ..." />
+                <button type="submit">🔍 Tìm kiếm</button>
+                <button type="button" onclick="openAddPopup()">+ Thêm</button>
+            </form>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="account-buttons">
+            <a href="@Url.Action("Logout", "Auth", new { area = "" })">🚪 Đăng xuất</a>
+        </div>
+    </div>
+</div>
+
+<!-- MENU -->
+<div class="menu">
+    <a href="@Url.Action("Index", "DongHoAdmin", new { area = "Admin" })">Sản Phẩm</a>
+    <a href="@Url.Action("Index", "NguoiDungAdmin", new { area = "Admin" })">Người Dùng</a>
+    <a href="@Url.Action("Index", "LoaiDHAdmin", new { area = "Admin" })">Loại Đồng Hồ</a>
+    <a href="@Url.Action("Index", "DonHangAdmin", new { area = "Admin" })">Đơn Hàng</a>
+    <a href="@Url.Action("Index", "ThongKe", new { area = "Admin" })">Thống Kê</a>
+</div>
+
+<!-- LIST -->
+<center>
+    <h1 class="PTitle">Danh sách các loại đồng hồ</h1>
+    <table width="90%" class="table-container">
+        <thead>
+            <tr>
+                <td>Mã Loại</td>
+                <td>Tên Loại</td>
+                <td>Thao Tác</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var temp in Model)
+            {
+                <tr>
+                    <td>@temp.MaLoai</td>
+                    <td>@temp.TenLoai</td>
+                    <td>
+                        <a href="#" onclick='openUpdatePopup(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(temp))); return false;'>Sửa</a>
+                        &nbsp;|&nbsp;
+                        <a href="@Url.Action("Index", "LoaiDHAdmin", new { area = "Admin", task = "count", Check = temp.MaLoai })">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</center>
+
+<!-- POPUP MODAL ADD/UPDATE -->
+<div id="editModal" class="modal" style="display:none;">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closePopup('editModal')">&times;</span>
+        <h2 id="formText">Chỉnh sửa loại đồng hồ</h2>
+
+        <div id="serverMessage" style="text-align:center; margin-bottom:10px;">
+            @if (TempData["ThongBao"] != null)
+            {
+                <p class="errmgs">@TempData["ThongBao"]</p>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var taskTra = "@(TaskTra ?? "")";
+                        var maTam = "@(maTam ?? 0)";
+                        var tenTam = "@(tenTam ?? "")";
+
+                        // Nếu có lỗi nhập liệu, mở popup và điền dữ liệu cũ
+                        if (maTam != 0 || taskTra === "insert" || taskTra === "update") {
+                            if (taskTra === "insert") {
+                                openAddPopup(maTam, tenTam);
+                            } else {
+                                openUpdatePopup({ MaLoai: maTam, TenLoai: tenTam });
+                            }
+                        }
+                    });
+                </script>
+            }
+        </div>
+
+        <form id="editForm" asp-area="Admin" asp-controller="LoaiDHAdmin" asp-action="Index" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="task" id="task" value="" />
+
+            <table style="margin:0 auto;">
+                <tr>
+                    <td><label>Mã loại</label></td>
+                    <td><input type="number" name="ma" id="ma" value="" placeholder="Nhập số nguyên dương" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" /></td>
+                </tr>
+                <tr>
+                    <td><label>Tên loại đồng hồ</label></td>
+                    <td><input type="text" name="ten" id="ten" value="" /></td>
+                </tr>
+            </table>
+
+            <div style="text-align:center; margin-top:12px;">
+                <button id="submitBtn" type="submit" style="display: inline-block;">Xác nhận</button>
+                <button type="button" class="btn" onclick="closePopup('editModal')" style="background-color: #CCCCCC;display: inline-block;">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- POPUP MODAL COUNT / DELETE -->
+<div id="countModal" class="modal" style="display:none;">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closePopup('countModal')">&times;</span>
+        @if (count != null)
+        {
+            if (count.Value > 0)
+            {
+                <h3 class="errmgs"> còn @count sản phẩm thuộc loại @(loaiCheck?.TenLoai.ToLower()), không thể xóa!</h3>
+                <div style="text-align:center; margin-top:12px;">
+                    <a class="action_link" href="@Url.Action("Index", "DongHoAdmin", new { area = "Admin", task = "searchByType", loai = loaiCheck?.MaLoai })">
+                        Xem danh sách sản phẩm
+                    </a>
+                    <button onclick="closePopup('countModal')">Đóng</button>
+                </div>
+            }
+            else
+            {
+                <h2 id="formText">Xóa loại đồng hồ này?</h2>
+                <form asp-area="Admin" asp-controller="LoaiDHAdmin" asp-action="Index" method="post" style="text-align:center;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="task" value="delete" />
+                    <table style="margin: 0 auto;">
+                        <tr>
+                            <td><label>Mã loại</label></td>
+                            <td><input type="number" name="ma" value="@(loaiCheck?.MaLoai ?? 0)" readonly /></td>
+                        </tr>
+                        <tr>
+                            <td><label>Tên loại</label></td>
+                            <td><input type="text" name="ten" value="@(loaiCheck?.TenLoai ?? "")" readonly /></td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:12px;">
+                        <button type="submit" style="background-color:#d9534f; display: inline-block;">Xóa</button>
+                        <button type="button" onclick="closePopup('countModal')" style="background-color: #CCCCCC; display: inline-block;">Hủy</button>
+                    </div>
+                </form>
+            }
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Lấy dữ liệu từ TempData an toàn
+        const hasThongBao = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(!string.IsNullOrEmpty(tenTam)));
+
+        if (hasThongBao) {
+            // Tạo object JS từ TempData
+            const loaiTemp = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+                MaLoai = maTam ?? 0,
+                TenLoai = tenTam ?? ""
+            }));
+
+            // Xác định task
+            const mode = "@(TaskTra ?? "insert")" === "insert" ? "insert" : "update";
+
+            // Mở popup tương ứng
+            if (mode === "insert") {
+                openAddPopup(loaiTemp.MaLoai, loaiTemp.TenLoai);
+            } else {
+                openUpdatePopup(loaiTemp);
+            }
+        }
+
+        // Nếu server trả count, mở popup count riêng
+        const hasCount = @System.Text.Json.JsonSerializer.Serialize(count != null);
+        if (hasCount) {
+            openCountPopup();
+        }
+    });
+
+    function openAddPopup(ma = 0, ten = "") {
+        document.getElementById("formText").textContent = "Thêm loại đồng hồ mới";
+        document.getElementById("task").value = "insert";
+        document.getElementById("ma").readOnly = false;
+        document.getElementById("ma").value = ma != 0 ? ma : "";
+        document.getElementById("ten").value = ten;
+        document.getElementById("submitBtn").textContent = "Thêm";
+        document.getElementById("editModal").style.display = "flex";
+    }
+
+    function openUpdatePopup(loai) {
+        document.getElementById("formText").textContent = "Chỉnh sửa loại đồng hồ";
+        document.getElementById("task").value = "update";
+        document.getElementById("ma").value = loai.MaLoai;
+        document.getElementById("ten").value = loai.TenLoai;
+        document.getElementById("ma").readOnly = true;
+        document.getElementById("submitBtn").textContent = "Lưu";
+        document.getElementById("editModal").style.display = "flex";
+    }
+
+    function openCountPopup() {
+        document.getElementById("countModal").style.display = "flex";
+    }
+
+    function closePopup(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+</script>
+
+
+<div class="footer">
+    © 2025 Shop Đồng Hồ Luxury | Liên hệ: 0123 456 789
+</div>

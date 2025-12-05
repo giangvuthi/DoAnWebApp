@@ -7,8 +7,11 @@
     int tongSoDonHang = ViewBag.TongSoDonHang ?? 0;
     int tongSoDonHangThanhCong = ViewBag.TongSoDonHangThanhCong ?? 0;
     List<ThongKeModel> thongKeTheoThang = ViewBag.ThongKeTheoThang;
-    decimal tongSoLuongTonKho = ViewBag.TongSoLuongTonKho ?? 0; // Giả sử đã có từ Controller
-    decimal tongSoLuongDaBan = ViewBag.TongSoLuongDaBan ?? 0; // Giả sử đã có từ Controller
+    decimal tongSoLuongTonKho = ViewBag.TongSoLuongTonKho ?? 0;
+    decimal tongSoLuongDaBan = ViewBag.TongSoLuongDaBan ?? 0;
+    List<ThongKeMatHangModel> thongKeTheoMatHang = ViewBag.ThongKeTheoMatHang;
+    string user = Context.Session.GetString("username");
+    string tennd = Context.Session.GetString("tennd");
 
     ViewData["Title"] = "Thống Kê Hoạt Động Bán Hàng";
     var culture = new CultureInfo("vi-VN");
@@ -29,6 +32,40 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
+    <link href="~/css/trangchucss.css" rel="stylesheet" />
+    <link href="~/css/popupadmin.css" rel="stylesheet" />
+
+    <div class="header">
+        <div class="header-left">
+            @if (user != null)
+            {
+                <div class="account-buttons left-group">
+                    <span class="user-name">👤 @tennd</span>
+                </div>
+            }
+        </div>
+
+        <div class="header-center">
+            <h1>SHOP ĐỒNG HỒ LUXURY</h1>
+            <p class="subtitle">Thời trang & Phong cách cho mọi người</p>
+
+        </div>
+
+        <div class="header-right">
+            <div class="account-buttons">
+                <a href="/Auth/Logout">🚪 Đăng xuất</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="menu" style="margin-bottom: 20px;">
+        <a href="@Url.Action("Index", "DongHoAdmin", new { area = "Admin" })">Sản Phẩm</a>
+        <a href="@Url.Action("Index", "NguoiDungAdmin", new { area = "Admin" })">Người Dùng</a>
+        <a href="@Url.Action("Index", "LoaiDHAdmin", new { area = "Admin" })">Loại Đồng Hồ</a>
+        <a href="@Url.Action("Index", "DonHangAdmin", new { area = "Admin" })">Đơn Hàng</a>
+        <a href="@Url.Action("Index", "ThongKe", new { area = "Admin" })">Thống Kê</a>
+    </div>
+
     <div class="thongke-container">
         <h1 class="main-title">📈 BÁO CÁO THỐNG KÊ TỔNG QUAN</h1>
 
@@ -95,6 +132,113 @@
         {
             <p class="no-data">Không có dữ liệu đơn hàng thành công trong năm nay.</p>
         }
+
+        <hr class="divider" />
+
+        <h2 class="section-heading">🏪 Thống Kê Theo Từng Mặt Hàng</h2>
+
+        <div class="filter-box">
+            <div class="filter-row">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm theo mã, tên sản phẩm...">
+
+                <select id="statusFilter">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="Còn hàng">Còn hàng</option>
+                    <option value="Sắp hết">Sắp hết</option>
+                    <option value="Hết hàng">Hết hàng</option>
+                </select>
+
+                <input type="number" id="minPrice" placeholder="Giá bán từ (VNĐ)">
+                <input type="number" id="maxPrice" placeholder="Giá bán đến (VNĐ)">
+
+                <input type="number" id="minStock" placeholder="Tồn kho từ">
+                <input type="number" id="maxStock" placeholder="Tồn kho đến">
+
+                <button id="clearFilter">❌ Xóa lọc</button>
+            </div>
+        </div>
+
+        @if (thongKeTheoMatHang != null && thongKeTheoMatHang.Any())
+        {
+            <table class="data-table product-table">
+                <thead>
+                    <tr>
+                        <th>Mã SP</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Giá Bán (VNĐ)</th>
+                        <th>Tồn Kho</th>
+                        <th>Đã Bán</th>
+                        <th>Tổng SL</th>
+                        <th>Tỷ Lệ Bán</th>
+                        <th>Doanh Thu (VNĐ)</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in thongKeTheoMatHang)
+                    {
+                        // Xác định trạng thái tồn kho
+                        string trangThai = "";
+                        string statusClass = "";
+
+                        decimal nguongCanhBao = item.TongSoLuong * 0.2m; // 20%
+
+                        if (item.SoLuongTonKho == 0)
+                        {
+                            trangThai = "Hết hàng";
+                            statusClass = "status-out";
+                        }
+                        else if (item.SoLuongTonKho <= nguongCanhBao)
+                        {
+                            trangThai = "Sắp hết";
+                            statusClass = "status-low";
+                        }
+                        else
+                        {
+                            trangThai = "Còn hàng";
+                            statusClass = "status-available";
+                        }
+
+
+                        <tr>
+                            <td>@item.MaDongHo</td>
+                            <td class="product-name">@item.TenDongHo</td>
+                            <td>@item.GiaBan.ToString("#,###", culture)</td>
+                            <td class="@(item.SoLuongTonKho <= 5 ? "low-stock" : "")">
+                                @item.SoLuongTonKho
+                            </td>
+                            <td class="sold-qty">@item.SoLuongDaBan</td>
+                            <td>@item.TongSoLuong</td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: @item.TyLeDaBan%"></div>
+                                    <span class="progress-text">@item.TyLeDaBan.ToString("0.0")%</span>
+                                </div>
+                            </td>
+                            <td class="revenue">@item.DoanhThu.ToString("#,###", culture)</td>
+                            <td>
+                                <span class="status-badge @statusClass">@trangThai</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3"><strong>TỔNG CỘNG</strong></td>
+                        <td><strong>@thongKeTheoMatHang.Sum(x => x.SoLuongTonKho)</strong></td>
+                        <td><strong>@thongKeTheoMatHang.Sum(x => x.SoLuongDaBan)</strong></td>
+                        <td><strong>@thongKeTheoMatHang.Sum(x => x.TongSoLuong)</strong></td>
+                        <td>-</td>
+                        <td><strong>@thongKeTheoMatHang.Sum(x => x.DoanhThu).ToString("#,###", culture)</strong></td>
+                        <td>-</td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+        else
+        {
+            <p class="no-data">Không có dữ liệu mặt hàng.</p>
+        }
     </div>
 
     <script>
@@ -146,5 +290,170 @@
             }
         });
     </script>
+
+    <style>
+        .filter-box {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #fff5f8;
+            border: 1px solid #ffd6e0;
+            border-radius: 10px;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .filter-row input,
+            .filter-row select {
+                padding: 8px 10px;
+                border-radius: 6px;
+                border: 1px solid #d6336c;
+                font-size: 14px;
+            }
+
+        #clearFilter {
+            padding: 8px 14px;
+            background: #d6336c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+            #clearFilter:hover {
+                background: #ff6b81;
+            }
+
+        /* Styles cho bảng thống kê mặt hàng */
+        .product-table {
+            font-size: 14px;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .low-stock {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .sold-qty {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .revenue {
+            color: #d6336c;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            position: relative;
+            width: 100%;
+            height: 24px;
+            background-color: #ecf0f1;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 11px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-low {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-out {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .total-row {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            border-top: 2px solid #d6336c;
+        }
+
+            .total-row td {
+                padding: 12px 8px !important;
+            }
+    </style>
+    <script>
+        function applyFilters() {
+            const keyword = document.getElementById("searchInput").value.toLowerCase();
+            const status = document.getElementById("statusFilter").value.toLowerCase();
+
+            const minPrice = parseFloat(document.getElementById("minPrice").value) || 0;
+            const maxPrice = parseFloat(document.getElementById("maxPrice").value) || Infinity;
+
+            const minStock = parseFloat(document.getElementById("minStock").value) || 0;
+            const maxStock = parseFloat(document.getElementById("maxStock").value) || Infinity;
+
+            const rows = document.querySelectorAll(".product-table tbody tr");
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+
+                const price = parseFloat(row.querySelector("td:nth-child(3)").innerText.replace(/[.,]/g,'')) || 0;
+                const stock = parseInt(row.querySelector("td:nth-child(4)").innerText) || 0;
+                const state = row.querySelector("td:last-child span").innerText.toLowerCase();
+
+                let match =
+                    text.includes(keyword) &&
+                    state.includes(status) &&
+                    price >= minPrice && price <= maxPrice &&
+                    stock >= minStock && stock <= maxStock;
+
+                row.style.display = match ? "" : "none";
+            });
+        }
+
+        // Gắn sự kiện
+        document.getElementById("searchInput").addEventListener("keyup", applyFilters);
+        document.getElementById("statusFilter").addEventListener("change", applyFilters);
+        document.getElementById("minPrice").addEventListener("keyup", applyFilters);
+        document.getElementById("maxPrice").addEventListener("keyup", applyFilters);
+        document.getElementById("minStock").addEventListener("keyup", applyFilters);
+        document.getElementById("maxStock").addEventListener("keyup", applyFilters);
+
+        // Xóa toàn bộ bộ lọc
+        document.getElementById("clearFilter").addEventListener("click", () => {
+            document.querySelectorAll(".filter-row input, .filter-row select").forEach(el => el.value = "");
+            applyFilters();
+        });
+    </script>
+
 </body>
 </html>

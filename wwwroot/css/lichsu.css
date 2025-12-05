@@ -1,0 +1,74 @@
+﻿/* ==== BODY ==== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: #ffe4e6;
+}
+
+/* ==== CONTAINER ==== */
+.lichsu-container {
+    width: 90%;
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #fff0f5;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    text-align: center;
+}
+
+    .lichsu-container h2 {
+        color: #d6336c;
+        font-size: 28px;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+/* ==== BẢNG ==== */
+.lichsu-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+    .lichsu-table th,
+    .lichsu-table td {
+        border: 1px solid #ffb6c1;
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    .lichsu-table th {
+        background-color: #ff6b81;
+        color: white;
+        font-weight: bold;
+    }
+
+    .lichsu-table tr:nth-child(even) {
+        background-color: #ffe4e6;
+    }
+
+/* ==== CHƯA CÓ ĐƠN HÀNG ==== */
+.no-order {
+    font-size: 18px;
+    color: #d6336c;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* ==== NÚT QUAY VỀ ==== */
+.back-home a {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #ff6b81;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+    .back-home a:hover {
+        background: #ff4560;
+        transform: scale(1.05);
+    }

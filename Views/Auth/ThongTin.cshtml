@@ -1,0 +1,58 @@
+﻿@{
+    Layout = null; // nếu không dùng layout, giữ null
+    string maDangNhap = ViewBag.MaDangNhap as string;
+    string tenND = ViewBag.TenND as string;
+    string matKhau = ViewBag.MatKhau as string;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Thông tin tài khoản</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #ffe4e6;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            color: #d6336c;
+        }
+
+        a.btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: #ff6b81;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+            a.btn:hover {
+                background: #ff4560;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Thông tin tài khoản</h2>
+        <p><b>Tên đăng nhập: </b> @maDangNhap</p>
+        <p><b>Họ và tên: </b> @tenND</p>
+        <p><b>Mật khẩu: </b> @matKhau</p>
+
+        <a asp-controller="DongHoes" asp-action="Index" class="btn">⬅ Quay lại trang chủ</a>
+    </div>
+</body>
+</html>

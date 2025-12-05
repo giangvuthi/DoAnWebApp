@@ -24,4 +24,8 @@
     <Folder Include="Areas\Admin\Data\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="efpt.config.json.user" />
+  </ItemGroup>
+
 </Project>

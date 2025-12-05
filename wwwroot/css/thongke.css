@@ -1,0 +1,153 @@
+﻿/* ==================================== */
+/* thongke.css (Tone Hồng Chủ đạo)     */
+/* ==================================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fce4ec; /* Hồng nhạt */
+    color: #333;
+    padding: 20px;
+}
+
+.thongke-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(214, 51, 108, 0.2);
+}
+
+.main-title {
+    color: #d6336c; /* Hồng đậm */
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 32px;
+}
+
+.section-heading {
+    color: #555;
+    border-bottom: 2px solid #ffcdd2; /* Gạch chân hồng nhạt */
+    padding-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid #f8bbd0;
+    margin: 30px 0;
+}
+
+/* --- Metrics Grid (Các chỉ số tổng quan) --- */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.metric-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid;
+}
+
+    .metric-card h3 {
+        margin-top: 0;
+        font-size: 16px;
+        color: #777;
+    }
+
+    .metric-card p {
+        font-size: 30px;
+        font-weight: bold;
+        margin: 5px 0 10px;
+    }
+
+    .metric-card .hint {
+        font-size: 12px;
+        color: #aaa;
+        display: block;
+    }
+
+/* Màu sắc các thẻ chỉ số */
+.revenue {
+    border-color: #d6336c;
+}
+    /* Hồng đậm */
+    .revenue p {
+        color: #d6336c;
+    }
+
+.inventory {
+    border-color: #ffc107;
+}
+    /* Vàng - Tồn kho */
+    .inventory p {
+        color: #ffc107;
+    }
+
+.sold {
+    border-color: #007bff;
+}
+    /* Xanh dương - Đã bán */
+    .sold p {
+        color: #007bff;
+    }
+
+.orders {
+    border-color: #28a745;
+}
+    /* Xanh lá - Đơn hàng thành công */
+    .orders p {
+        color: #28a745;
+    }
+
+/* --- Chart Container --- */
+.chart-container {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #f8bbd0;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
+/* --- Data Table --- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+    .data-table th, .data-table td {
+        border: 1px solid #ffcdd2;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .data-table th {
+        background-color: #f8bbd0; /* Hồng nhạt cho tiêu đề bảng */
+        color: #d6336c;
+        font-weight: 600;
+    }
+
+    .data-table tr:nth-child(even) {
+        background-color: #fff5f8;
+    }
+
+    .data-table tr:hover {
+        background-color: #ffcdd2;
+    }
+
+    .data-table td:nth-child(2) {
+        font-weight: bold;
+        color: #d6336c;
+    }
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}

@@ -1,0 +1,195 @@
+﻿@model DoAnWebApp.Models.DonHang
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    var tongTien = 0.0;
+    bool coSP = Model != null && Model.ChiTietDonHangs.Any();
+}
+
+<link href="~/css/giohang.css" rel="stylesheet" />
+
+<h2>🛒 Giỏ hàng của bạn</h2>
+
+<div class="cart-container">
+
+    <table id="cartTable">
+        <tr>
+            <th>Chọn</th>
+            <th>Hình</th>
+            <th>Tên sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+            <th>Thao tác</th>
+        </tr>
+
+        @if (coSP)
+        {
+            foreach (var ct in Model.ChiTietDonHangs)
+            {
+                var maSP = ct.MaSP;
+                var sp = ct.DongHo;
+                var anh = sp?.Anh;
+                var tenSP = sp?.TenSP;
+                var donGia = sp?.DonGia ?? 0;
+                var soLuong = ct.SoLuong;
+                var thanhTien = ct.ThanhTien;
+
+                tongTien += thanhTien;
+                <tr>
+                    <td><input type="checkbox" class="item-checkbox" checked></td>
+
+                    <td>
+                        @if (!string.IsNullOrEmpty(anh))
+                        {
+                            <img src="~/IMG/@anh" class="img-thumb" />
+                        }
+                        else
+                        {
+                            <img src="~/IMG/noimage.png" class="img-thumb" />
+                        }
+                    </td>
+
+                    <td>@tenSP</td>
+
+                    <td class="price" data-price="@donGia">
+                        @donGia.ToString("N0")
+                    </td>
+
+                    <td>
+                        <input type="number"
+                               class="qty-input"
+                               data-masp="@maSP"
+                               name="soLuong_@maSP"
+                               value="@soLuong"
+                               min="1"
+                               style="width:60px;">
+                    </td>
+
+                    <td class="subtotal">
+                        @thanhTien.ToString("N0")
+                    </td>
+
+                    <td>
+                        <form asp-controller="GioHang" asp-action="Xoa" method="post" style="display:inline;">
+                            <input type="hidden" name="maSP" value="@maSP" />
+                            <button class="btn" style="background:#dc3545;">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="7" style="text-align:center;">Không có sản phẩm</td></tr>
+        }
+    </table>
+
+    @if (!coSP)
+    {
+        <div class="empty-cart">
+            🛍️ Giỏ hàng trống.
+            <a asp-controller="DongHoes" asp-action="Index">Tiếp tục mua sắm</a>
+        </div>
+    }
+    else
+    {
+        <table>
+            <tr class="total-row">
+                <td colspan="5">Tổng cộng (sản phẩm đã chọn):</td>
+                <td colspan="2" id="tongCong" style="color:#d6336c;">
+                    @tongTien.ToString("N0")
+                </td>
+            </tr>
+        </table>
+
+        <form id="thanhToanForm" asp-controller="ThanhToan" asp-action="Index" method="post">
+            <div class="actions">
+                <a asp-controller="DongHoes" asp-action="Index" class="btn continue-btn">⬅️ Tiếp tục mua sắm</a>
+                <button type="submit" class="btn btn-pink">💳 Thanh Toán</button>
+            </div>
+        </form>
+    }
+
+</div>
+
+<!-- JavaScript giống 100% JSP -->
+<script>
+    function formatVND(number) {
+        return new Intl.NumberFormat('vi-VN').format(number);
+    }
+
+    function updateTotal() {
+        let total = 0;
+
+        document.querySelectorAll("#cartTable tr").forEach(row => {
+            const checkbox = row.querySelector(".item-checkbox");
+            const priceCell = row.querySelector(".price");
+            const qtyInput = row.querySelector(".qty-input");
+            const subtotalCell = row.querySelector(".subtotal");
+
+            if (checkbox && checkbox.checked && priceCell && qtyInput && subtotalCell) {
+                const price = parseFloat(priceCell.getAttribute("data-price"));
+                const qty = parseInt(qtyInput.value);
+                const subtotal = price * qty;
+                subtotalCell.textContent = formatVND(subtotal);
+                total += subtotal;
+            } else if (priceCell && qtyInput && subtotalCell) {
+                const price = parseFloat(priceCell.getAttribute("data-price"));
+                const qty = parseInt(qtyInput.value);
+                subtotalCell.textContent = formatVND(price * qty);
+            }
+        });
+
+        document.getElementById("tongCong").textContent = formatVND(total);
+    }
+
+    document.querySelectorAll(".qty-input").forEach(input => {
+        input.addEventListener("input", updateTotal);
+    });
+
+    document.querySelectorAll(".item-checkbox").forEach(checkbox => {
+        checkbox.addEventListener("change", updateTotal);
+    });
+
+    updateTotal();
+</script>
+
+<!-- JS cập nhật số lượng lên server -->
+<script>
+    const thanhToanForm = document.getElementById('thanhToanForm');
+
+    if (thanhToanForm) {
+        thanhToanForm.addEventListener('submit', function (e) {
+            // Xóa các input ẩn cũ nếu có
+            document.querySelectorAll('.item-hidden').forEach(h => h.remove());
+
+            // Lấy tất cả các checkbox đã chọn
+            document.querySelectorAll('#cartTable .item-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    const tr = cb.closest('tr');
+                    const qtyInput = tr.querySelector('.qty-input');
+                    const maSP = qtyInput.getAttribute('data-masp');
+                    const soLuong = qtyInput.value;
+
+                    // Tạo input ẩn cho mã sản phẩm
+                    const inputSP = document.createElement('input');
+                    inputSP.type = 'hidden';
+                    inputSP.name = 'selectedSP';
+                    inputSP.value = maSP;
+                    inputSP.classList.add('item-hidden');
+                    this.appendChild(inputSP);
+
+                    // Tạo input ẩn cho số lượng
+                    const inputQty = document.createElement('input');
+                    inputQty.type = 'hidden';
+                    inputQty.name = 'soLuong_' + maSP;
+                    inputQty.value = soLuong;
+                    inputQty.classList.add('item-hidden');
+                    this.appendChild(inputQty);
+                }
+            });
+        });
+    }
+</script>
+

@@ -1,58 +1,182 @@
 ﻿@{
-    Layout = null; // nếu không dùng layout, giữ null
-    string maDangNhap = ViewBag.MaDangNhap as string;
-    string tenND = ViewBag.TenND as string;
-    string matKhau = ViewBag.MatKhau as string;
+	Layout = null;
+	string maDangNhap = ViewBag.MaDangNhap as string;
+	string tenND = ViewBag.TenND as string;
+	string thongbao = TempData["thongbao"] as string;
+	string thongbaotk = TempData["ThongBaoTK"] as string;
 }
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8" />
-    <title>Thông tin tài khoản</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #ffe4e6;
-            text-align: center;
-        }
+	<meta charset="UTF-8" />
+	<title>Thông tin tài khoản</title>
+	<link href="~/css/popupauth.css" rel="stylesheet" />
+	<style>
+		body {
+			font-family: Arial;
+			background: #ffe4e6;
+			text-align: center;
+		}
 
-        .container {
-            background: white;
-            width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
+		.container {
+			background: white;
+			width: 400px;
+			margin: 50px auto;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+		}
 
-        h2 {
-            color: #d6336c;
-        }
+		h2 {
+			color: #d6336c;
+		}
 
-        a.btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 8px 15px;
-            background: #ff6b81;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-        }
+		a.btn, button.btn {
+			display: inline-block;
+			margin-top: 15px;
+			padding: 8px 15px;
+			background: #ff6b81;
+			color: white;
+			border-radius: 5px;
+			text-decoration: none;
+			border: none;
+			cursor: pointer;
+		}
 
-            a.btn:hover {
-                background: #ff4560;
-            }
-    </style>
+			a.btn:hover, button.btn:hover {
+				background: #ff4560;
+			}
+
+		form {
+			margin-top: 20px;
+			text-align: left;
+		}
+
+			form label {
+				display: block;
+				margin: 10px 0 5px;
+			}
+
+			form input {
+				width: 100%;
+				padding: 6px;
+				border-radius: 5px;
+				border: 1px solid #ccc;
+			}
+
+		.succmsg {
+			background: #e6f4ea; /* xanh nhạt hơn, dịu mắt */
+			border-left: 4px solid #4caf50; /* viền xanh đậm */
+			padding: 10px 14px;
+			color: #2e7d32; /* chữ xanh đậm */
+			font-weight: 600;
+			border-radius: 6px;
+			text-align: center;
+			margin-bottom: 15px;
+		}
+
+
+
+		.errmgs {
+			background: #ffccd5;
+			border-left: 4px solid #e91e63;
+			padding: 10px 14px;
+			color: #b71c1c;
+			font-weight: 600;
+			border-radius: 6px;
+			text-align: center;
+			margin-bottom: 15px;
+		}
+
+	</style>
 </head>
 <body>
-    <div class="container">
-        <h2>Thông tin tài khoản</h2>
-        <p><b>Tên đăng nhập: </b> @maDangNhap</p>
-        <p><b>Họ và tên: </b> @tenND</p>
-        <p><b>Mật khẩu: </b> @matKhau</p>
+	<div class="container">
+		<h2>Thông tin tài khoản</h2>
+		<p><b>Tên đăng nhập: </b> @maDangNhap</p>
+		<p><b>Họ và tên: </b> @tenND</p>
 
-        <a asp-controller="DongHoes" asp-action="Index" class="btn">⬅ Quay lại trang chủ</a>
-    </div>
+		
+		@if (thongbaotk != null)
+		{
+			<p class="succmsg">@thongbaotk</p>
+		}
+		<hr />
+
+		<!-- Nút mở popup đổi mật khẩu -->
+		<button class="sbm_button" id="btnChangePassword">Đổi mật khẩu</button>
+
+		<a asp-controller="DongHoes" asp-action="Index" class="sbm_button" style="margin-top:15px; text-decoration: none">⬅ Quay lại trang chủ</a>
+	</div>
+
+	<!-- POPUP ĐỔI MẬT KHẨU -->
+	<div id="passwordModal" class="modal">
+		<div class="popup-content">
+			<span class="close-btn" id="closePopup">&times;</span>
+			<h2>Đổi mật khẩu</h2>
+
+			@if (thongbao != null)
+			{
+				<p class="errmgs">@thongbao</p>
+				<script>
+					document.addEventListener("DOMContentLoaded", function () {
+						openpopup();
+					});
+				</script>
+			}
+
+			<form asp-controller="Auth" asp-action="DoiMatKhau" method="post">
+				@Html.AntiForgeryToken()
+
+				<form asp-controller="Auth" asp-action="DoiMatKhau" method="post">
+					@Html.AntiForgeryToken()
+
+					<div style="margin-bottom:20px;">
+						<label for="MatKhauCu">Mật khẩu cũ:</label>
+						<input type="password" id="MatKhauCu" name="MatKhauCu" style="width:100%; box-sizing:border-box;" required />
+					</div>
+
+					<div style="margin-bottom:20px;">
+						<label for="MatKhauMoi">Mật khẩu mới:</label>
+						<input type="password" id="MatKhauMoi" name="MatKhauMoi" style="width:100%; box-sizing:border-box;" required />
+					</div>
+
+					<div style="margin-bottom:12px;">
+						<label for="XacNhanMatKhau">Xác nhận mật khẩu mới:</label>
+						<input type="password" id="XacNhanMatKhau" name="XacNhanMatKhau" style="width:100%; box-sizing:border-box;" required />
+					</div>
+
+					<div style="text-align:center; margin-top:12px;">
+						<button type="submit" class="sbm_button">Xác nhận</button>
+					</div>
+				</form>
+
+			</form>
+
+		</div>
+	</div>
+
+	<script>
+		// Lấy các phần tử
+		var modal = document.getElementById("passwordModal");
+		var btnOpen = document.getElementById("btnChangePassword");
+		var btnClose = document.getElementById("closePopup");
+
+		// Mở popup
+		btnOpen.onclick = function() {
+			openpopup();
+		}
+
+		function openpopup(){
+			modal.style.display = "flex";
+		}
+
+		// Đóng popup
+		btnClose.onclick = function() {
+			modal.style.display = "none";
+		}
+	</script>
 </body>
+
 </html>

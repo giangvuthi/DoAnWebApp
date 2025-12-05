@@ -1,0 +1,531 @@
+﻿@using DoAnWebApp.Models
+@{
+    Layout = null;
+
+    // Lấy thông tin người dùng từ Session
+    string user = Context.Session.GetString("Username");
+    string tennd = Context.Session.GetString("TenND");
+
+    // Các thông tin khác vẫn lấy từ ViewBag nếu cần
+    int? loai = ViewBag.Loai as int?;
+    List<DongHo> ds = ViewBag.ListSP as List<DongHo>;
+
+    string err = ViewBag.Error as string;
+    string msg = ViewBag.Message as string;
+    string authTask = ViewBag.AuthTask as string;
+
+    // Lịch sử đơn hàng (fix scope)
+    List<DonHang> lichSu = ViewBag.LichSu as List<DonHang>;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Trang chủ - Shop Đồng Hồ Luxury</title>
+    <link href="~/css/trangchucss.css" rel="stylesheet" />
+    <link href="~/css/popupauth.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="main-content">
+    <!-- HEADER -->
+    <div class="header">
+
+        <div class="header-left">
+            @if (!string.IsNullOrEmpty(user))
+            {
+                <div class="account-buttons left-group">
+                    <span class="user-name">👤 @tennd</span>
+                    <a href="/Auth/Info">🔖 Thông tin tài khoản</a>
+                </div>
+            }
+        </div>
+
+        <div class="header-center">
+            <h1>SHOP ĐỒNG HỒ LUXURY</h1>
+            <p class="subtitle">Thời trang & Phong cách cho mọi người</p>
+
+            <div class="search-box">
+                <form asp-controller="DongHoes" asp-action="Search" method="get">
+                    <input type="text" name="keyword" placeholder="Tìm đồng hồ theo tên..." />
+                    <button type="submit">🔍 Tìm kiếm</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="header-right">
+            @if (string.IsNullOrEmpty(user))
+            {
+                <div class="account-buttons">
+                    <button class="auth-btn" onclick="openFormDangNhap()">Đăng nhập</button>
+                    <button class="auth-btn" onclick="openFormDangKy()">Đăng ký</button>
+                </div>
+            }
+            else
+            {
+                <div class="account-buttons">
+                    <a href="/GioHang">🛒 Giỏ hàng</a>
+                    <a href="/Auth/Logout">🚪 Đăng xuất</a>
+                </div>
+            }
+        </div>
+
+    </div>
+
+    <!-- MENU -->
+    <div class="menu">
+        <a href="/DongHoes/Index">Trang chủ</a>
+        <a href="/DongHoes/Filter?loai=1">Đồng hồ nam</a>
+        <a href="/DongHoes/Filter?loai=2">Đồng hồ nữ</a>
+        <a href="/DongHoes/Filter?loai=3">Đồng hồ đôi</a>
+        <a href="/DongHoes/Filter?loai=4">Đồng hồ thể thao</a>
+        <a href="/DongHoes/Filter?loai=5">Đồng hồ thông minh</a>
+        @if (!string.IsNullOrEmpty(user))
+        {
+            <a href="javascript:void(0);" onclick="toggleLichSu()">📜 Lịch sử</a>
+        }
+    </div>
+
+    <!-- PRODUCT CATEGORY TITLE -->
+    <div class="section-title" id="main-section-title">
+        @{
+            string title = (lichSu != null && lichSu.Count > 0 && Context.Request.Path.Value.Contains("LichSu"))
+            ? "LỊCH SỬ ĐƠN HÀNG"
+            : loai switch
+            {
+                1 => "ĐỒNG HỒ NAM",
+                2 => "ĐỒNG HỒ NỮ",
+                3 => "ĐỒNG HỒ ĐÔI",
+                4 => "ĐỒNG HỒ THỂ THAO",
+                5 => "ĐỒNG HỒ THÔNG MINH",
+                _ => "BỘ SƯU TẬP HOT NHẤT"
+            };
+        }
+        @title
+    </div>
+
+
+        <!-- ORDER HISTORY ẩn mặc định -->
+        @if (user != null)
+        {
+            <div id="lich-su-container" style="display:none; margin-top:20px;">
+
+                @if (lichSu != null && lichSu.Count > 0)
+                {
+                    <table style="width:90%; margin: 20px auto; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color:#ffe4e1;">
+                                <th style="border:1px solid #ccc; padding:8px;">Mã đơn</th>
+                                <th style="border:1px solid #ccc; padding:8px;">Ngày lập</th>
+                                <th style="border:1px solid #ccc; padding:8px;">Tổng tiền</th>
+                                <th style="border:1px solid #ccc; padding:8px;">Trạng thái</th>
+                                <th style="border:1px solid #ccc; padding:8px;">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dh in lichSu)
+                            {
+                                <tr>
+                                    <td data-label="Mã đơn">#@dh.MaDH</td>
+                                    <td data-label="Ngày lập">@dh.NgayLap.ToString("dd/MM/yyyy")</td>
+                                    <td data-label="Tổng tiền">@String.Format("{0:N0}", dh.TongThanhTien) VNĐ</td>
+                                    <td data-label="Trạng thái">
+                                        @(dh.TrangThai == 0 ? "Chờ xử lý" : dh.TrangThai == 1 ? "Đã xử lý" : "Đã hủy")
+                                    </td>
+                                    <td data-label="Chi tiết">
+                                        <a href="javascript:void(0);" class="toggle-chitiet" data-madh="@dh.MaDH">
+                                            🔍 Xem chi tiết <span class="icon">▼</span>
+                                        </a>
+                                    </td>
+
+                                </tr>
+                                <tr class="chitiet-row" id="chitiet-@dh.MaDH" style="display:none;">
+                                    <td colspan="5">
+                                        <div class="chitiet-container" data-loaded="false">
+                                            <div class="loading-spinner">Đang tải...</div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+
+                    </table>
+                }
+                else
+                {
+                    <p style="text-align:center; width:100%;">Bạn chưa có đơn hàng nào.</p>
+                }
+            </div>
+        }
+
+
+
+
+    <!-- PRODUCT LIST -->
+    <div id="product-container" class="container">
+        @if (ds != null && ds.Count > 0)
+        {
+            foreach (var sp in ds)
+            {
+                <div class="product">
+                    <img src="~/img/@sp.Anh" alt="@sp.TenSP" />
+                    <h3>@sp.TenSP</h3>
+                    <p class="price">@String.Format("{0:N0}", sp.DonGia) VNĐ</p>
+                    <p class="desc">@sp.MoTa</p>
+                    <a class="detail-btn" href="/DongHoes/Details?MaSP=@sp.MaSP">Xem chi tiết</a>
+                </div>
+            }
+        }
+        else
+        {
+            <p style="text-align:center; width:100%;">Không tìm thấy sản phẩm.</p>
+        }
+    </div>
+
+
+    <!-- Popup Đăng ký -->
+    <div class="modal" id="FormDangKy">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePopup('FormDangKy')">&times;</span>
+            <h2>ĐĂNG KÝ TÀI KHOẢN</h2>
+
+            @if (TempData["Error"] != null && TempData["AuthTask"]?.ToString() == "dangky")
+            {
+                <p class="error-msg">@TempData["Error"]</p>
+            }
+
+            <form asp-controller="Auth" asp-action="Register" method="post">
+                <input type="text" name="madangnhap" placeholder="Tên đăng nhập" required />
+                <input type="text" name="tennd" placeholder="Họ và tên" required />
+                <input type="password" name="matkhau" placeholder="Mật khẩu" required />
+                <button type="submit" class="sbm_button">Đăng ký</button>
+            </form>
+
+            <p>
+                Đã có tài khoản?
+                <button class="popup-link-btn" onclick="switchPopup('FormDangKy','FormDangNhap')">
+                    Đăng nhập
+                </button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Popup Đăng nhập -->
+    <div class="modal" id="FormDangNhap">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePopup('FormDangNhap')">&times;</span>
+            <h2>ĐĂNG NHẬP</h2>
+
+            @if (TempData["Error"] != null && TempData["AuthTask"]?.ToString() == "dangnhap")
+            {
+                <p class="error-msg">@TempData["Error"]</p>
+            }
+
+            @if (TempData["Message"] != null && TempData["AuthTask"]?.ToString() == "dangnhap")
+            {
+                <p class="success-msg">@TempData["Message"]</p>
+            }
+
+            <form asp-controller="Auth" asp-action="Login" method="post">
+                <input type="text" name="username" placeholder="Tên đăng nhập" required />
+                <input type="password" name="password" placeholder="Mật khẩu" required />
+                <button type="submit" class="sbm_button">Đăng nhập</button>
+            </form>
+
+            <p>
+                Chưa có tài khoản?
+                <button class="popup-link-btn" onclick="switchPopup('FormDangNhap','FormDangKy')">
+                    Đăng ký
+                </button>
+            </p>
+        </div>
+    </div>
+
+    </div>
+
+    <script>
+        window.onload = function() {
+            var authTask = '@TempData["AuthTask"]';
+            if (authTask === 'dangky') {
+                openPopup('FormDangKy');
+            } else if (authTask === 'dangnhap') {
+                openPopup('FormDangNhap');
+            }
+        }
+
+        function openPopup(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closePopup(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function switchPopup(closeId, openId) {
+            closePopup(closeId);
+            openPopup(openId);
+        }
+    </script>
+
+    <style>
+        .error-msg {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .success-msg {
+            color: green;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+
+
+
+    <!-- FOOTER -->
+    <div class="footer">
+        © 2025 Shop Đồng Hồ Luxury | Liên hệ: 0123 456 789
+    </div>
+
+
+    <!-- SCRIPT -->
+    <script>
+        function openFormDangKy() {
+            document.getElementById("FormDangKy").style.display = "flex";
+        }
+
+        function openFormDangNhap() {
+            document.getElementById("FormDangNhap").style.display = "flex";
+        }
+
+        function closePopup(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function switchPopup(cur, next) {
+            document.getElementById(cur).style.display = "none";
+            document.getElementById(next).style.display = "flex";
+        }
+
+        // Mở popup khi có lỗi / thông báo
+        document.addEventListener('DOMContentLoaded', function () {
+            var task = "@authTask";
+            var err = "@(err?.Replace("\"", "\\\""))";
+            var msg = "@(msg?.Replace("\"", "\\\""))";
+
+            if (!task) return;
+
+            if (task === "dangnhap") {
+                openFormDangNhap();
+
+                if (err) {
+                    document.querySelector('#FormDangNhap .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:red;'>${err}</p>`);
+                } else if (msg) {
+                    document.querySelector('#FormDangNhap .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:green;'>${msg}</p>`);
+                }
+            }
+            else if (task === "dangky") {
+                openFormDangKy();
+
+                if (err) {
+                    document.querySelector('#FormDangKy .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:red;'>${err}</p>`);
+                } else if (msg) {
+                    document.querySelector('#FormDangKy .popup-content')
+                        .insertAdjacentHTML('beforeend', `<p style='color:green;'>${msg}</p>`);
+                }
+            }
+        });
+    </script>
+
+    <!-- SCRIPT POPUP -->
+    <script>
+           
+        function toggleLichSu() {
+            var lichSu = document.getElementById("lich-su-container");
+            var sanPham = document.getElementById("product-container");
+            var titleElement = document.getElementById("main-section-title"); // Lấy phần tử tiêu đề chính
+
+            // Lấy giá trị 'loai' từ Razor để dùng trong JavaScript
+            var loai = @(loai ?? 0);
+
+            if (lichSu.style.display === "none" || lichSu.style.display === "") {
+                // Trường hợp 1: HIỂN THỊ LỊCH SỬ
+                lichSu.style.display = "block";
+                if(sanPham) sanPham.style.display = "none";
+                if(titleElement) titleElement.textContent = "LỊCH SỬ ĐƠN HÀNG"; // Đổi tiêu đề
+
+            } else {
+                // Trường hợp 2: ẨN LỊCH SỬ, HIỂN THỊ SẢN PHẨM
+                lichSu.style.display = "none";
+                if(sanPham) sanPham.style.display = "block";
+
+                // Khôi phục tiêu đề sản phẩm dựa trên biến 'loai'
+                var defaultTitle = "BỘ SƯU TẬP HOT NHẤT";
+
+                switch(loai) {
+                    case 1: defaultTitle = "ĐỒNG HỒ NAM"; break;
+                    case 2: defaultTitle = "ĐỒNG HỒ NỮ"; break;
+                    case 3: defaultTitle = "ĐỒNG HỒ ĐÔI"; break;
+                    case 4: defaultTitle = "ĐỒNG HỒ THỂ THAO"; break;
+                    case 5: defaultTitle = "ĐỒNG HỒ THÔNG MINH"; break;
+                }
+                if(titleElement) titleElement.textContent = defaultTitle; // Khôi phục tiêu đề cũ
+            }
+        }
+           
+    </script>
+
+    <script>
+          window.addEventListener('DOMContentLoaded', () => {
+            var openLichSu = '@TempData["OpenLichSu"]';
+            if (openLichSu === 'True') {
+                toggleLichSu(); // mở phần lịch sử
+            }
+        });
+    </script>
+
+    <!-- SCRIPT XEM CHI TIẾT ĐỢN HÀNG -->
+    <script>
+        function formatVND(number) {
+            return new Intl.NumberFormat('vi-VN').format(number);
+        }
+
+        async function xemChiTiet(maDH) {
+            const popup = document.getElementById('popup-chitiet-donhang');
+            const contentDiv = document.getElementById('chitiet-content');
+
+            // Hiển thị popup và loading
+            popup.style.display = 'block';
+            contentDiv.innerHTML = '<div class="loading-spinner"></div>';
+
+            try {
+                // Gọi API để lấy chi tiết đơn hàng
+                const response = await fetch(`/ThanhToan/GetChiTietDonHang?maDH=${maDH}`);
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin đơn hàng');
+                }
+
+                const data = await response.json();
+
+                // Hiển thị thông tin đơn hàng
+                let html = `
+                    <div class="chitiet-info">
+                        <div class="chitiet-info-row">
+                            <span class="chitiet-info-label">Mã đơn hàng:</span>
+                            <span class="chitiet-info-value">#${data.maDH}</span>
+                        </div>
+                        <div class="chitiet-info-row">
+                            <span class="chitiet-info-label">Ngày đặt:</span>
+                            <span class="chitiet-info-value">${new Date(data.ngayLap).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                        <div class="chitiet-info-row">
+                            <span class="chitiet-info-label">Trạng thái:</span>
+                            <span class="chitiet-info-value">${data.trangThaiText}</span>
+                        </div>
+                    </div>
+
+                    <div class="chitiet-product-list">
+                        <h3 style="color: #d6336c; margin-bottom: 15px;">📦 Danh sách sản phẩm</h3>
+                `;
+
+                // Hiển thị từng sản phẩm
+                data.chiTiet.forEach(item => {
+                    html += `
+                        <div class="chitiet-product-item">
+                            <img src="/img/${item.anh}" alt="${item.tenSP}" class="chitiet-product-image" />
+                            <div class="chitiet-product-info">
+                                <div class="chitiet-product-name">${item.tenSP}</div>
+                                <div class="chitiet-product-price">Đơn giá: ${formatVND(item.donGia)} VNĐ</div>
+                            </div>
+                            <div class="chitiet-product-quantity">x${item.soLuong}</div>
+                            <div class="chitiet-product-total">${formatVND(item.thanhTien)} VNĐ</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="chitiet-total-section">
+                        <div style="font-size: 18px; margin-bottom: 10px;">TỔNG CỘNG:</div>
+                        <div class="chitiet-total-amount">${formatVND(data.tongTien)} VNĐ</div>
+                    </div>
+                `;
+
+                contentDiv.innerHTML = html;
+
+            } catch (error) {
+                contentDiv.innerHTML = `<p style="color: red; text-align: center; padding: 40px;">❌ ${error.message}</p>`;
+            }
+        }
+
+        function dongChiTiet() {
+            document.getElementById('popup-chitiet-donhang').style.display = 'none';
+        }
+
+        // Đóng popup khi click bên ngoài
+        window.onclick = function(event) {
+            const popup = document.getElementById('popup-chitiet-donhang');
+            if (event.target == popup) {
+                dongChiTiet();
+            }
+        }
+
+                document.querySelectorAll('.toggle-chitiet').forEach(link => {
+            link.addEventListener('click', async function() {
+                const maDH = this.dataset.madh;
+                const chitietRow = document.getElementById('chitiet-' + maDH);
+                const icon = this.querySelector('.icon');
+                const container = chitietRow.querySelector('.chitiet-container');
+
+                if (chitietRow.style.display === 'none' || chitietRow.style.display === '') {
+                    // Hiển thị chi tiết
+                    chitietRow.style.display = 'table-row';
+                    if(icon) icon.textContent = '▲';
+
+                    // Nếu chưa tải dữ liệu
+                    if(container.dataset.loaded === 'false') {
+                        try {
+                            const response = await fetch(`/ThanhToan/GetChiTietDonHang?maDH=${maDH}`);
+                            if(!response.ok) throw new Error('Không tải được chi tiết');
+                            const data = await response.json();
+
+                            let html = '';
+                                    data.chiTiet.forEach(item => {
+            html += `
+                <div class="chitiet-product-item">
+                    <img src="/img/${item.anh}" alt="${item.tenSP}" />
+                    <div class="chitiet-product-info">
+                        <div class="chitiet-product-name">${item.tenSP}</div>
+                        <div class="chitiet-product-price">Đơn giá: ${formatVND(item.donGia)} VNĐ</div>
+                    </div>
+                    <div class="chitiet-product-quantity">x${item.soLuong}</div>
+                    <div class="chitiet-product-total">${formatVND(item.thanhTien)} VNĐ</div>
+                </div>
+            `;
+        });
+
+                            container.innerHTML = html;
+                            container.dataset.loaded = 'true';
+                        } catch(err) {
+                            container.innerHTML = `<span style="color:red;">❌ ${err.message}</span>`;
+                        }
+                    }
+                } else {
+                    // Ẩn chi tiết
+                    chitietRow.style.display = 'none';
+                    if(icon) icon.textContent = '▼';
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
+

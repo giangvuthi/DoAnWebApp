@@ -1,0 +1,234 @@
+﻿@model List<DoAnWebApp.Models.NguoiDung>
+@{
+	ViewData["Title"] = "Trang chủ - Shop Đồng Hồ Luxury";
+	string user = Context.Session.GetString("username");
+	string tennd = Context.Session.GetString("tennd");
+
+	// Lấy dữ liệu tạm từ TempData
+	string MaDangNhapTam = TempData["MaDangNhap"] as string;
+	string TenNDTam = TempData["TenND"] as string;
+	string MatKhauTam = TempData["MatKhau"] as string;
+	int QuyenTam = TempData["Quyen"] != null ? (int)TempData["Quyen"] : 1;
+	string TaskTam = TempData["TaskTam"] as string;
+	string ThongBao = TempData["ThongBao"] as string;
+}
+
+<link href="~/css/popupadmin.css" rel="stylesheet" />
+<link href="~/css/trangchucss.css" rel="stylesheet" />
+
+<!-- HEADER -->
+<div class="header">
+	<div class="header-left">
+		@if (!string.IsNullOrEmpty(user))
+		{
+			<div class="account-buttons left-group">
+				<span class="user-name">👤 @tennd</span>
+			</div>
+		}
+	</div>
+	<div class="header-center">
+		<h1>SHOP ĐỒNG HỒ LUXURY</h1>
+		<p class="subtitle">Thời trang & Phong cách cho mọi người</p>
+		<div class="search-box">
+			<form asp-area="Admin" asp-controller="NguoiDungAdmin" asp-action="Index" method="get">
+				<input type="text" name="keyword" value="@ViewBag.Keyword" placeholder="Tìm người dùng theo tên..." />
+				<button type="submit">🔍 Tìm kiếm</button>
+				<button type="button" onclick="openPopup(null, 'add')">+ Thêm</button>
+			</form>
+		</div>
+	</div>
+	<div class="header-right">
+		<div class="account-buttons">
+			<a href="@Url.Action("Logout", "Auth", new { area = "" })">🚪 Đăng xuất</a>
+		</div>
+	</div>
+</div>
+
+<!-- MENU -->
+<div class="menu">
+	<a href="@Url.Action("Index", "DongHoAdmin", new { area = "Admin" })">Sản Phẩm</a>
+	<a href="@Url.Action("Index", "NguoiDungAdmin", new { area = "Admin" })">Người Dùng</a>
+	<a href="@Url.Action("Index", "LoaiDHAdmin", new { area = "Admin" })">Loại Đồng Hồ</a>
+	<a href="@Url.Action("Index", "DonHangAdmin", new { area = "Admin" })">Đơn Hàng</a>
+	<a href="@Url.Action("Index", "ThongKe", new { area = "Admin" })">Thống Kê</a>
+</div>
+
+<!-- LIST NGƯỜI DÙNG -->
+<center>
+	<h1 class="PTitle">Danh sách người dùng</h1>
+	<table width="90%" class="table-container">
+		<thead>
+			<tr>
+				<td>Mã Đăng Nhập</td>
+				<td>Tên Người Dùng</td>
+				<td>Mật Khẩu</td>
+				<td>Quyền</td>
+				<td>Thao Tác</td>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var temp in Model)
+			{
+				<tr>
+					<td>@temp.MaDangNhap</td>
+					<td>@temp.TenND</td>
+					<td>@temp.MatKhau</td>
+					<td>@(temp.Quyen == 1 ? "User" : "Admin")</td>
+					<td>
+						<a href="#" onclick='openPopup(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(temp)), "update"); return false;'>Sửa</a>
+						&nbsp;|&nbsp;
+						<a href="#" onclick='openPopup(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(temp)), "delete"); return false;'>Xóa</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</center>
+
+<!-- POPUP ĐỔI MẬT KHẨU -->
+<div id="passwordModal" class="modal">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closePopup()">&times;</span>
+        <h2>Đổi mật khẩu</h2>
+
+        @if(ViewBag.Error != null)
+        {
+            <p class="errmgs">@ViewBag.Error</p>
+        }
+
+        <form asp-controller="Auth" asp-action="DoiMatKhau" method="post">
+            @Html.AntiForgeryToken()
+
+            <table style="margin:0 auto;">
+                <tr>
+                    <td><label for="MatKhauCu">Mật khẩu cũ</label></td>
+                    <td><input type="password" name="MatKhauCu" id="MatKhauCu" style="width:100%; box-sizing:border-box;" required /></td>
+                </tr>
+                <tr>
+                    <td><label for="MatKhauMoi">Mật khẩu mới</label></td>
+                    <td><input type="password" name="MatKhauMoi" id="MatKhauMoi" style="width:100%; box-sizing:border-box;" required /></td>
+                </tr>
+                <tr>
+                    <td><label for="XacNhanMatKhau">Xác nhận mật khẩu mới</label></td>
+                    <td><input type="password" name="XacNhanMatKhau" id="XacNhanMatKhau" style="width:100%; box-sizing:border-box;" required /></td>
+                </tr>
+            </table>
+
+            <div style="text-align:center; margin-top:12px;">
+                <button type="submit" class="sbm_button">Xác nhận</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Mở popup
+    document.getElementById("btnChangePassword").onclick = function() {
+        document.getElementById("passwordModal").style.display = "flex";
+    }
+
+    // Đóng popup
+    function closePopup() {
+        document.getElementById("passwordModal").style.display = "none";
+    }
+
+    // Đóng khi click ngoài popup
+    window.onclick = function(event) {
+        var modal = document.getElementById("passwordModal");
+        if(event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+
+<!-- FOOTER -->
+<div class="footer">
+	© 2025 Shop Đồng Hồ Luxury | Liên hệ: 0123 456 789
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Kiểm tra xem có ThongBao từ server không
+    const hasThongBao = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(!string.IsNullOrEmpty(ThongBao)));
+
+    if (hasThongBao) {
+        // Tạo object JS từ TempData
+        const ndTemp = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+            MaDangNhap = MaDangNhapTam ?? "",
+            TenND = TenNDTam ?? "",
+            MatKhau = MatKhauTam ?? "",
+            Quyen = QuyenTam
+        }));
+
+        // Xác định task
+        const mode = "@(TaskTam ?? "add")" === "add" ? "add" :
+                     "@(TaskTam ?? "")" === "delete" ? "delete" : "update";
+
+        // Mở popup tương ứng
+        openPopup(ndTemp, mode);
+
+        // Đặt lại select quyền
+        document.getElementById("quyen").value = ndTemp.Quyen;
+    }
+});
+
+// Hàm mở popup
+function openPopup(ng, mode) {
+    const maInput = document.getElementById("ma");
+    const tenInput = document.getElementById("ten");
+    const matkhauInput = document.getElementById("matkhau");
+    const quyenSelect = document.getElementById("quyen");
+    const title = document.getElementById("formText");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // Reset readonly / disabled
+    maInput.readOnly = false;
+    tenInput.readOnly = false;
+    matkhauInput.readOnly = false;
+    quyenSelect.disabled = false;
+
+    if (ng === null) {
+        maInput.value = "";
+        tenInput.value = "";
+        matkhauInput.value = "";
+        quyenSelect.value = 1;
+    } else {
+        maInput.value = ng.MaDangNhap;
+        tenInput.value = ng.TenND;
+        matkhauInput.value = ng.MatKhau;
+        quyenSelect.value = ng.Quyen;
+
+        if (mode === 'delete') {
+            maInput.readOnly = true;
+            tenInput.readOnly = true;
+            matkhauInput.readOnly = true;
+            quyenSelect.disabled = true;
+        }
+    }
+
+    if (mode === 'add') {
+        title.textContent = "Thêm thông tin người dùng mới";
+        submitBtn.textContent = "Thêm";
+        document.getElementById("task").value = "add";
+        maInput.readOnly = false;
+    } else if (mode === 'update') {
+        title.textContent = "Chỉnh sửa người dùng";
+        submitBtn.textContent = "Lưu";
+        document.getElementById("task").value = "update";
+    } else if (mode === 'delete') {
+        title.textContent = "Xóa thông tin người dùng này?";
+        submitBtn.textContent = "Xóa";
+        submitBtn.style.backgroundColor = "red";
+        document.getElementById("task").value = "delete";
+    }
+
+    document.getElementById("editModal").style.display = "flex";
+}
+
+function closePopup() {
+    document.getElementById("editModal").style.display = "none";
+}
+</script>
+

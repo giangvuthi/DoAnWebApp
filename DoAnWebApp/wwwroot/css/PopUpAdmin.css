@@ -1,0 +1,340 @@
+﻿/* ---------------- Bảng ---------------- */
+.table-container {
+    width: 95%;
+    margin: 25px auto;
+    background: #fff5f8;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(255, 0, 100, 0.15);
+}
+
+.PTitle {
+    text-align: center;
+    font-size: 26px;
+    color: #d4006e;
+    font-weight: 700;
+    margin: 15px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+    /* Header bảng */
+    table thead {
+        background-color: #ad1457;
+        color: #fff;
+    }
+
+    table th, table td {
+        border: 1px solid #ffd3e2;
+        padding: 10px 12px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    table th {
+        font-weight: 600;
+    }
+
+    /* Dòng xen kẽ */
+    table tbody tr:nth-child(even) {
+        background-color: #fff0f5;
+    }
+
+    /* Hover hàng */
+    table tbody tr:hover {
+        background-color: #ffe6ef;
+        transition: background 0.3s;
+    }
+
+    /* Ảnh sản phẩm */
+    table img {
+        width: 90px;
+        height: 90px;
+        border-radius: 6px;
+        object-fit: cover;
+        transition: transform 0.25s ease;
+    }
+
+        table img:hover {
+            transform: scale(1.08);
+        }
+
+    /* Liên kết sửa/xóa */
+    table a {
+        color: #d81b60;
+        text-decoration: none;
+        font-weight: 500;
+        margin: 0 4px;
+    }
+
+        table a:hover {
+            color: #ad1457;
+            text-decoration: underline;
+        }
+
+.action_link {
+    color: #d81b60;
+    text-decoration: none;
+    font-weight: 500;
+    margin: 0 4px;
+    text-decoration: underline;
+}
+
+    .action_link:hover {
+        color: #ad1457;
+        text-decoration: underline;
+    }
+/* ---------------- Ảnh trong popup ---------------- */
+.image-cell {
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-preview {
+    width: 150px;
+    height: 150px;
+    border: 2px dashed #ccc;
+    border-radius: 2px;
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+}
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+.file-label {
+    display: inline-block;
+    padding: 8px 14px;
+    background-color: #ff6699;
+    color: #fff;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .file-label:hover {
+        background-color: #ff3377;
+    }
+
+.file-input {
+    display: none !important;
+}
+
+/* ---------------- Combobox ---------------- */
+
+select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc; /* viền xám nhẹ mặc định */
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    background-image: linear-gradient(45deg, transparent 50%, #ff1493 50%), linear-gradient(135deg, #ff1493 50%, transparent 50%);
+    background-position: calc(100% - 16px) center, calc(100% - 11px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+
+    /* Hover nhẹ */
+    select:hover {
+        border-color: #bbb;
+    }
+
+    /* Khi focus — chỉ viền hồng, không hiệu ứng sáng */
+    select:focus {
+        border-color: #ff1493;
+        box-shadow: 0 0 5px rgba(255, 64, 129, 0.3);
+        transition: 0.3s;
+    }
+
+/* Option giữ style mặc định */
+option {
+    background-color: #fff;
+    color: #333;
+}
+
+
+/* ---------------- POPUP ---------------- */
+.modal {
+    display: none; /* Ẩn mặc định */
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.55);
+    z-index: 1000;
+}
+
+.errmgs {
+    background: #ffe5ef;
+    border-left: 4px solid #d81b60;
+    padding: 10px 14px;
+    color: #c2185b;
+    font-weight: 600;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* Hộp nội dung popup */
+.popup-content {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Hiệu ứng mở popup */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Nút đóng X */
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+    .close-btn:hover {
+        color: #ff4081;
+    }
+
+/* Tiêu đề popup */
+.popup-content h2 {
+    text-align: center;
+    color: #d81b60;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+/* Bảng form trong popup */
+.popup-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    border-color: white;
+}
+
+.popup-content td {
+    padding: 8px 6px;
+}
+
+    .popup-content td:first-child {
+        width: 35%;
+        text-align: right;
+        font-weight: 600;
+        color: #444;
+        padding-right: 10px;
+    }
+
+    .popup-content td:last-child {
+        width: 65%;
+    }
+
+/* Input & textarea */
+.popup-content input[type="text"],
+.popup-content input[type="number"],
+.popup-content textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.25s ease;
+}
+
+    .popup-content input:focus,
+    .popup-content textarea:focus {
+        border-color: #ff4081;
+        box-shadow: 0 0 5px rgba(255, 64, 129, 0.3);
+        outline: none;
+    }
+
+/* Textarea */
+.popup-content textarea {
+    min-height: 60px;
+    resize: vertical;
+}
+
+/* Nút xác nhận */
+.popup-content button {
+    background-color: #ff4da6; /* hồng đậm nổi bật */
+    color: white; /* chữ trắng rõ nét */
+    border: none;
+    border-radius: 8px; /* bo góc mềm mại */
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 15px auto 0 auto; /* căn giữa nút */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+    .popup-content button :hover {
+        background-color: #e60073; /* đậm hơn khi hover */
+        transform: scale(1.05);
+    }
+
+    .popup-content button :active {
+        background-color: #cc0066;
+        transform: scale(0.97);
+    }
+
+.button-group {
+    /* 1. Đảm bảo form là Flex container */
+    display: flex;
+    /* 2. 🌟 SỬA ĐỔI CỐT LÕI: Căn giữa các item trên trục ngang 🌟 */
+    justify-content: center;
+    /* 3. Đặt khoảng cách giữa hai nút */
+    gap: 15px; /* Điều chỉnh 15px, 20px tùy theo bạn muốn */
+    /* 4. Giữ lại margin để căn giữa form (nếu form không chiếm hết chiều rộng) */
+    margin: 15px auto 0 auto;
+}
+
+    .button-group button {
+        margin: 0;
+        margin-top: 15px;
+    }
+

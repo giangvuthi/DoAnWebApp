@@ -1,0 +1,92 @@
+﻿/* Ẩn hàng chi tiết mặc định */
+.details-row {
+    display: none;
+    background-color: #fce4ec;
+}
+
+/* Nội dung chi tiết – có hiệu ứng trượt */
+.details-content {
+    padding: 15px;
+    border: 1px dashed #e91e63;
+    margin: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+}
+
+/* Khi mở */
+.details-row.show .details-content {
+    max-height: 500px; /* hoặc auto, nhưng max-height cho animation mượt hơn */
+    opacity: 1;
+}
+
+/* Bảng con */
+.nested-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+    .nested-table th,
+    .nested-table td {
+        border-bottom: 1px solid #f8bbd0;
+        padding: 6px 10px;
+        text-align: left;
+    }
+
+/* Nút mở rộng */
+.detail-toggle {
+    background: none;
+    border: none;
+    color: #e91e63;
+    cursor: pointer;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.3s ease;
+}
+
+    .detail-toggle:hover {
+        color: #ad1457;
+    }
+
+    /* Mũi tên */
+    .detail-toggle .arrow {
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+
+    /* Khi mở thì quay lên */
+    .detail-toggle.active .arrow {
+        transform: rotate(180deg);
+    }
+
+
+/* Button thêm chi tiết DH */
+.btn-cell {
+    text-align: center;
+    padding: 8px 0;
+    background-color: #fff0f5; /* nền nhẹ hơn để tách nút khỏi bảng */
+}
+
+.btn-them {
+    width: 100%;
+    padding: 8px 0; /* giảm chiều cao nút */
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #f57ca2;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 3px 6px rgba(214, 51, 132, 0.3);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+    .btn-them:hover {
+        background-color: #c2185b; /* hồng trầm hơn khi hover */
+        box-shadow: 0 4px 8px rgba(214, 51, 132, 0.45);
+    }

@@ -1,0 +1,146 @@
+﻿@using DoAnWebApp.Models
+@{
+    ViewData["Title"] = "Đơn Hàng - Shop Đồng Hồ Luxury";
+
+    string user = Context.Session.GetString("username");
+    string tennd = Context.Session.GetString("tennd");
+
+    var listDonHang = ViewBag.DonHangList as List<DonHang>;
+    var listChiTiet = ViewBag.ChiTietList as List<ChiTietDonHang>;
+    string keyword = ViewBag.Keyword as string;
+}
+
+<link href="~/css/popupadmin.css" rel="stylesheet" />
+<link href="~/css/trangchucss.css" rel="stylesheet" />
+<link href="~/css/chitietdh.css" rel="stylesheet" />
+
+<div class="header">
+    <div class="header-left">
+        @if (user != null)
+        {
+            <div class="account-buttons left-group">
+                <span class="user-name">👤 @tennd</span>
+            </div>
+        }
+    </div>
+
+    <div class="header-center">
+        <h1>SHOP ĐỒNG HỒ LUXURY</h1>
+        <p class="subtitle">Thời trang & Phong cách cho mọi người</p>
+
+        <!-- SEARCH -->
+        <div class="search-box">
+            <form method="get" asp-action="Index">
+                <input type="text"
+                       name="keyword"
+                       value="@keyword"
+                       placeholder="Tìm đơn hàng theo mã đơn..." />
+                <button type="submit">🔍 Tìm kiếm</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="account-buttons">
+            <a href="@Url.Action("Logout", "Auth", new { area = "" })">🚪 Đăng xuất</a>
+        </div>
+    </div>
+</div>
+
+<!-- MENU -->
+<div class="menu">
+    <a href="@Url.Action("Index", "DongHoAdmin", new { area = "Admin" })">Sản Phẩm</a>
+    <a href="@Url.Action("Index", "NguoiDungAdmin", new { area = "Admin" })">Người Dùng</a>
+    <a href="@Url.Action("Index", "LoaiDHAdmin", new { area = "Admin" })">Loại Đồng Hồ</a>
+    <a href="@Url.Action("Index", "DonHangAdmin", new { area = "Admin" })">Đơn Hàng</a>
+    <a href="@Url.Action("Index", "ThongKe", new { area = "Admin" })">Thống Kê</a>
+</div>
+
+<center>
+    <h1 class="PTitle">Danh sách đơn hàng</h1>
+
+    <table width="90%" class="table-container">
+        <thead>
+            <tr>
+                <td>Mã Đơn Hàng</td>
+                <td>Mã Người Dùng</td>
+                <td>Ngày Lập</td>
+                <td>Trạng Thái</td>
+                <td>Tổng Thành Tiền</td>
+                <td>Thao Tác</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var temp in listDonHang)
+            {
+                <tr>
+                    <td>@temp.MaDH</td>
+                    <td>@temp.MaDangNhap</td>
+                    <td>@temp.NgayLap.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (temp.TrangThai == 1)
+                        {
+                            <span>Đã Bán</span>
+                        }
+                        else
+                        {
+                            <span>Đã Thêm Giỏ Hàng</span>
+                        }
+                    </td>
+                    <td>@string.Format("{0:N0} VNĐ", temp.TongThanhTien)</td>
+                    <td>
+                        <button type="button" class="detail-toggle" onclick="toggleDetails('@temp.MaDH', this)">
+                            Xem chi tiết ▼
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="details-row" id="details-@temp.MaDH" style="display:none;">
+                    <td></td>
+                    <td colspan="5">
+                        <table class="nested-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã SP</th>
+                                    <th>Số Lượng</th>
+                                    <th>Thành Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ct in temp.ChiTietDonHangs)
+                                {
+                                    <tr style="background: white">
+                                        <td>@ct.MaSP</td>
+                                        <td>@ct.SoLuong</td>
+                                        <td>@string.Format("{0:N0} VNĐ", ct.ThanhTien)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</center>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2025 Shop Đồng Hồ Luxury | Liên hệ: 0123 456 789
+</div>
+
+<script>
+    function toggleDetails(maDH, btn) {
+        const detailRow = document.getElementById("details-" + maDH);
+        if (!detailRow) return;
+
+        const isHidden = detailRow.style.display === "none" || detailRow.style.display === "";
+        if (isHidden) {
+            detailRow.style.display = "table-row";
+            btn.classList.add("active");
+        } else {
+            detailRow.style.display = "none";
+            btn.classList.remove("active");
+        }
+    }
+</script>

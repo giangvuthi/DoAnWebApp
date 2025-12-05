@@ -8,6 +8,8 @@ builder.Services.AddDbContext<DoAnWebAppContext>(options =>
 
 // Add services to the container.
 builder.Services.AddScoped<DongHoService>();
+builder.Services.AddScoped<LoaiDHService>();
+builder.Services.AddScoped<ChiTietDonHangService>();
 builder.Services.AddScoped<NguoiDungService>();
 builder.Services.AddScoped<MuaNgayService>();
 builder.Services.AddScoped<ThanhToanServise>();
