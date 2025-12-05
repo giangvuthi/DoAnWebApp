@@ -119,37 +119,55 @@
                                 <th style="border:1px solid #ccc; padding:8px;">Mã đơn</th>
                                 <th style="border:1px solid #ccc; padding:8px;">Ngày lập</th>
                                 <th style="border:1px solid #ccc; padding:8px;">Tổng tiền</th>
+
+                                <!-- NEW -->
+                                <th style="border:1px solid #ccc; padding:8px;">Số điện thoại</th>
+                                <th style="border:1px solid #ccc; padding:8px;">Địa chỉ</th>
+                                <th style="border:1px solid #ccc; padding:8px;">Thanh toán</th>
+
                                 <th style="border:1px solid #ccc; padding:8px;">Trạng thái</th>
                                 <th style="border:1px solid #ccc; padding:8px;">Chi tiết</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            @foreach (var dh in lichSu)
-                            {
-                                <tr>
-                                    <td data-label="Mã đơn">#@dh.MaDH</td>
-                                    <td data-label="Ngày lập">@dh.NgayLap.ToString("dd/MM/yyyy")</td>
-                                    <td data-label="Tổng tiền">@String.Format("{0:N0}", dh.TongThanhTien) VNĐ</td>
-                                    <td data-label="Trạng thái">
-                                        @(dh.TrangThai == 0 ? "Chờ xử lý" : dh.TrangThai == 1 ? "Đã xử lý" : "Đã hủy")
-                                    </td>
-                                    <td data-label="Chi tiết">
-                                        <a href="javascript:void(0);" class="toggle-chitiet" data-madh="@dh.MaDH">
-                                            🔍 Xem chi tiết <span class="icon">▼</span>
-                                        </a>
-                                    </td>
+                        @foreach (var dh in lichSu)
+                        {
+                            <tr>
+                                <td data-label="Mã đơn">#@dh.MaDH</td>
+                                <td data-label="Ngày lập">@dh.NgayLap.ToString("dd/MM/yyyy")</td>
+                                <td data-label="Tổng tiền">@String.Format("{0:N0}", dh.TongThanhTien) VNĐ</td>
 
-                                </tr>
-                                <tr class="chitiet-row" id="chitiet-@dh.MaDH" style="display:none;">
-                                    <td colspan="5">
-                                        <div class="chitiet-container" data-loaded="false">
-                                            <div class="loading-spinner">Đang tải...</div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <!-- NEW -->
+                                <td data-label="Số điện thoại">@dh.Sdt</td>
+                                <td data-label="Địa chỉ">@dh.DiaChi</td>
+                                <td data-label="Thanh toán">
+                                    @(dh.TrangThaiThanhToan == false ? "Chờ thanh toán (COD)" : "Đã thanh toán")
+                                </td>
 
-                            }
+                                <td data-label="Trạng thái">
+                                    @(dh.TrangThai == 1 ? "Chờ xử lý"
+                                      : dh.TrangThai == 2 ? "Đang Giao"
+                                      : "Đã hủy")
+                                </td>
+
+                                <td data-label="Chi tiết">
+                                    <a href="javascript:void(0);" class="toggle-chitiet" data-madh="@dh.MaDH">
+                                        🔍 Xem chi tiết <span class="icon">▼</span>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <tr class="chitiet-row" id="chitiet-@dh.MaDH" style="display:none;">
+                                <td colspan="8">
+                                    <div class="chitiet-container" data-loaded="false">
+                                        <div class="loading-spinner">Đang tải...</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                         </tbody>
+
 
                     </table>
                 }

@@ -4,24 +4,26 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DoAnWebApp.Models;
 
 public partial class DonHang
 {
-    public string MaDh { get; set; }
-
+    [Key]
+    public string MaDH { get; set; } = String.Empty;
+    [ForeignKey("NguoiDung")]
     public string MaDangNhap { get; set; }
-
-    public DateOnly NgayLap { get; set; }
-
+    public DateTime NgayLap { get; set; }
     public int TrangThai { get; set; }
-
     public double TongThanhTien { get; set; }
-
+    
     public string Sdt { get; set; }
 
     public string DiaChi { get; set; }
 
     public bool TrangThaiThanhToan { get; set; }
+    public NguoiDung NguoiDung { get; set; }
+    public ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; }
 }

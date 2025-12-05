@@ -156,8 +156,15 @@ namespace DoAnWebApp.Controllers
                 MaDangNhap = user,
                 NgayLap = DateTime.Now,
                 TongThanhTien = (double)tongTien,
-                TrangThai = 1
+                TrangThai = 1,
+                 Sdt = sdt,
+                DiaChi = diaChi,
+
+                // ⭐ Xử lý trạng thái thanh toán theo yêu cầu
+                TrangThaiThanhToan = phuongThuc == "COD" ? false : true
             };
+            
+
 
             _context.DonHangs.Add(donHang);
 

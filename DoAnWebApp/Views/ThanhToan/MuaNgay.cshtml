@@ -4,6 +4,8 @@
     var chiTietDonHang = ViewBag.ChiTietDonHang as List<dynamic>;
     decimal tongTien = ViewBag.TongTien ?? 0;
     var culture = new CultureInfo("vi-VN");
+    string tennd = Context.Session.GetString("TenND");
+
 }
 
 <!DOCTYPE html>
@@ -77,8 +79,10 @@
 
                     <div class="form-group">
                         <label>Họ và tên <span class="required">*</span></label>
-                        <input type="text" name="hoTen" placeholder="Nhập họ và tên" required />
+                        <input type="text" name="hoTen" placeholder="Nhập họ và tên" required 
+                               value="@(!string.IsNullOrEmpty(tennd) ? tennd : "")" />
                     </div>
+
 
                     <div class="form-group">
                         <label>Số điện thoại <span class="required">*</span></label>
@@ -96,8 +100,15 @@
                             <option value="">-- Chọn phương thức --</option>
                             <option value="COD">Thanh toán khi nhận hàng (COD)</option>
                             <option value="Bank">Chuyển khoản ngân hàng</option>
-                            <option value="Momo">Ví điện tử Momo</option>
                         </select>
+                       <div class="form-group" id="qrBox" style="display:none; text-align:center; margin-top:20px;">
+                            <label><b>Mã QR thanh toán</b></label>
+                            <div>
+                                <img id="qrImage" src="" 
+                                     style="width:250px; height:250px; border:1px solid #ccc; padding:6px; border-radius:10px;" />
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="form-group">
@@ -175,6 +186,44 @@
         });
     </script>
 }
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const qrBox = document.getElementById("qrBox");
+    const qrImage = document.getElementById("qrImage");
+    const selectPT = document.querySelector('select[name="phuongThuc"]');
+
+    // Lấy tổng tiền trực tiếp số thực
+    let tongTien = @tongTien; // Razor inject số, không format
+
+    selectPT.addEventListener("change", function () {
+        let pt = this.value;
+        if (pt === "COD") {
+            qrBox.style.display = "none";
+            qrImage.src = "";
+            return;
+        }
+
+        let noiDung = "Thanh toan don hang " + Date.now();
+
+        if (pt === "Bank") {
+            let bankCode = "MB";          
+            let stk = "0353532429";       
+
+            let qrUrl = `https://img.vietqr.io/image/${bankCode}-${stk}-qr_only.png?amount=${tongTien}&addInfo=${encodeURIComponent(noiDung)}`;
+            console.log("Bank QR URL:", qrUrl);
+            qrImage.src = qrUrl;
+            qrBox.style.display = "block";
+        }
+
+          
+
+    });
+});
+</script>
+
+
 
 </body>
 </html>
